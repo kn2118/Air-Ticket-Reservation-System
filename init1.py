@@ -13,6 +13,11 @@ conn = pymysql.connect(host='localhost',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
 
+@app.route('/success')
+def success():
+	username = session['username']
+	return render_template('success.html',username=username)
+
 #Define a route to hello function
 @app.route('/')
 def hello():
@@ -38,7 +43,8 @@ def loginAuth():
 	#cursor used to send queries
 	cursor = conn.cursor()
 	#executes query
-	query = 'SELECT * FROM user WHERE username = %s and password = %s'
+	# query = 'SELECT * FROM user WHERE username = %s and password = %s'
+	query = 'SELECT * FROM airline_staff WHERE username = %s and passwd = %s'
 	cursor.execute(query, (username, password))
 	#stores the results in a variable
 	data = cursor.fetchone()
@@ -49,7 +55,8 @@ def loginAuth():
 		#creates a session for the the user
 		#session is a built in
 		session['username'] = username
-		return redirect(url_for('home'))
+		return redirect(url_for('success'))
+		# return redirect(url_for('home'))
 	else:
 		#returns an error message to the html page
 		error = 'Invalid login or username'
@@ -81,7 +88,7 @@ def registerAuth():
 		conn.commit()
 		cursor.close()
 		return render_template('index.html')
-
+		
 @app.route('/home')
 def home():
     
