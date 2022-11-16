@@ -18,6 +18,10 @@ def success():
 	username = session['username']
 	return render_template('success.html',username=username)
 
+@app.route('/default')
+def default():
+	return render_template('default.html',)
+
 #Define a route to hello function
 @app.route('/')
 def hello():
@@ -60,7 +64,7 @@ def loginAuth():
 	else:
 		#returns an error message to the html page
 		error = 'Invalid login or username'
-		return render_template('login.html', error=error)
+		return render_template('index.html', error=error)
 
 #Authenticates the register
 @app.route('/registerAuth', methods=['GET', 'POST'])
@@ -72,7 +76,7 @@ def registerAuth():
 	#cursor used to send queries
 	cursor = conn.cursor()
 	#executes query
-	query = 'SELECT * FROM user WHERE username = %s'
+	query = 'SELECT * FROM airline_staff WHERE username = %s'
 	cursor.execute(query, (username))
 	#stores the results in a variable
 	data = cursor.fetchone()
@@ -83,7 +87,7 @@ def registerAuth():
 		error = "This user already exists"
 		return render_template('register.html', error = error)
 	else:
-		ins = 'INSERT INTO user VALUES(%s, %s)'
+		ins = 'INSERT INTO airline_staff (username,passwd) VALUES(%s, %s)'
 		cursor.execute(ins, (username, password))
 		conn.commit()
 		cursor.close()
