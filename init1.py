@@ -33,9 +33,14 @@ def login():
 	return render_template('login.html')
 
 #Define route for register
-@app.route('/register')
-def register():
-	return render_template('register.html')
+@app.route('/customerRegister')
+def customerRegister():
+	return render_template('customerRegister.html')
+
+#Define route for register
+@app.route('/adminRegister')
+def adminRegister():
+	return render_template('adminRegister.html')
 
 #Authenticates the login
 @app.route('/loginAuth', methods=['GET', 'POST'])
