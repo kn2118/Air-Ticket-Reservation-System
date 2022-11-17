@@ -2,7 +2,7 @@
 <head>
 </head>
 <body>
-<form action="/registerAuth" method="POST">
+<form action="/registerCustomerAuth" method="POST">
 	<!-- <input type="text" name = "username" placeholder="username" required/> </br>
 	<input type="password" name = "password" placeholder="password" required/></br>
 	<input type="submit" value = Register />
@@ -10,12 +10,6 @@
 		<p class="error"><strong>Error:</strong> {{error}}</p>
 	{% endif %} -->
 	<h1>Register for an account</h1>
-
-    <label for="Account">Account Type </label>
-    <select name="Account Type" id="Account">
-        <option value="customer">Customer</option>
-        <option value="admin">Admin</option>
-	</select>
 
 	<br>
 	<br>
@@ -25,22 +19,27 @@
 	<br>
 	<br>
 	<br>
-	<!-- <h3>General Information</h3>
-	<input type="text" name = "dob" placeholder="MM/DD/YYYY" required/></br>
-	<input type="text" name = "building_number" placeholder="Building Number" required/></br>
+
+	<h3>General Information</h3>
+	<input type="text" name = "name" placeholder = "name" required/></br>
+	<input type="date" name = "dob" required/> Date of birth</br>
+	<input type="number" name = "building_number" placeholder="Building Number" required/></br>
 	<input type="text" name = "street" placeholder="Street" required/></br>
 	<input type="text" name = "city" placeholder="City" required/></br>
 	<input type="text" name = "state" placeholder="State" required/></br>
 	<br>
-
+	<input type="text" name = "email" placeholder="email" required/></br>
 	<input type="text" name = "phone_number" placeholder="(XXX-XXX-XXXX)" required/></br>
-	<input type="text" name = "passport_number" placeholder="Passport Number" required/></br>
-	<input type="text" name = "passport_expiration" placeholder="MM/DD/YYYY" required/></br>
-	<input type="text" name = "passport_country" placeholder="Country" required/></br> -->
+	<input type="number" name = "passport_number" placeholder="Passport Number" required/></br>
+	<input type="date" name = "passport_expiration" required/> Passport Expiration Date</br>
+	<input type="text" name = "passport_country" required/></br>
 
 
 
 	<input type="submit" value = Register />
+	{% if error %}
+	<p class="error"><strong>Error:</strong> {{error}}</p>
+	{% endif %}
 </form>
 <a href="/">Go back</a>	
 </body>

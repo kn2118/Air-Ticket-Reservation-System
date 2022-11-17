@@ -11,16 +11,15 @@
 	{% endif %} -->
 	<h1>Register for an admin account</h1>
 
-    <label for="Account">Account Type </label>
-    <select name="Account Type" id="Account">
-        <option value="customer">Customer</option>
-        <option value="admin">Admin</option>
-	</select>
-
 	<br>
 	<br>
 	<input type="text" name = "username" placeholder="username" required/> </br>
-	<input type="password" name = "password" placeholder="password" required/></br>
+	<input type="password" name = "password" placeholder="password" required/></br><br><br>
+	<input type="date" name = "dob" placeholder="date of birth" required/></br>
+	<input type="text" name = "airline_name" placeholder="airline name" required/></br>
+	<input type="text" name = "first_name" placeholder="first name" required/></br>
+	<input type="text" name = "last_name" placeholder="last name" required/> </br>
+
 
 	<br>
 	<br>
@@ -41,6 +40,9 @@
 
 
 	<input type="submit" value = Register />
+    {% if error %}
+    <p class="error"><strong>Error:</strong> {{error}}</p>
+    {% endif %}
 </form>
 <a href="/">Go back</a>	
 </body>
