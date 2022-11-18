@@ -7,6 +7,17 @@
     <h1>Welcome {{username}} (Customer Page)</h1>
     <!-- </form> -->
 
+    <h2>View your current flights: </h2>
+    <label for="viewOption">View by: </label>
+    <select id="viewOption">
+        <option>Future flights</option>
+        <option>All flights</option>
+    </select>
+    <br>
+    <br>
+    <button>Search</button>
+
+
     <h2>Search for a flight: </h2>
     <h3>Starting: </h3>
     <label for="searchSourceCity">City</label>
@@ -28,7 +39,11 @@
     <input placeholder="Airline, flight #, arrival/departure" size="25">
     <br>
     <br>
-    <button>Search</button>
+    <button>Search</button><br><br><br><br>
+
+    <a href="./purchaseScreen">Purchase tickets for a new flight</a><br>
+    <a href="./cancelTripScreen">Cancel an existing trip</a><br>
+    <a href="./rateCommentScreen">Rate and comment your previous flights!</a><br>
 
 </body>
 

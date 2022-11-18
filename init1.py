@@ -23,6 +23,21 @@ def successAdmin():
 	username = session['username']
 	return render_template('/adminViews/successAdmin.html',username=username)
 
+@app.route('/customerViews/cancelTripScreen')
+def cancelTripScreen():
+	username = session['username']
+	return render_template('/customerViews/cancelTripScreen.html',username=username)
+
+@app.route('/customerViews/purchaseScreen')
+def purchaseScreen():
+	username = session['username']
+	return render_template('/customerViews/purchaseScreen.html',username=username)
+
+@app.route('/customerViews/rateCommentScreen')
+def rateCommentScreen():
+	username = session['username']
+	return render_template('/customerViews/rateCommentScreen.html',username=username)
+
 @app.route('/default')
 def default():
 	return render_template('default.html',)
@@ -78,14 +93,15 @@ def loginAuth():
 
 	error = None
 	if(dataAdmin or dataCustomer):
+		session['username'] = username
 		if dataCustomer:
 			#creates a session for the the user
 			#session is a built in
-			session['username'] = username
+			session['admin'] = False
 			return redirect(url_for('success'))
 			# return redirect(url_for('home'))
-		else:
-			session['username'] = username
+		elif dataAdmin:
+			session['admin'] = True
 			return redirect(url_for('successAdmin'))
 	else:
 		#returns an error message to the html page
