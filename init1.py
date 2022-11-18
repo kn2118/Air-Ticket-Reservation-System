@@ -13,15 +13,15 @@ conn = pymysql.connect(host='localhost',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
 
-@app.route('/success')
+@app.route('/customerViews/success')
 def success():
 	username = session['username']
-	return render_template('success.html',username=username)
+	return render_template('/customerViews/success.html',username=username)
 
-@app.route('/successAdmin')
+@app.route('/adminViews/successAdmin')
 def successAdmin():
 	username = session['username']
-	return render_template('successAdmin.html',username=username)
+	return render_template('/adminViews/successAdmin.html',username=username)
 
 @app.route('/default')
 def default():
@@ -38,14 +38,14 @@ def login():
 	return render_template('login.html')
 
 #Define route for register
-@app.route('/customerRegister')
+@app.route('/customerViews/customerRegister')
 def customerRegister():
-	return render_template('customerRegister.html')
+	return render_template('/customerViews/customerRegister.html')
 
 #Define route for register
-@app.route('/adminRegister')
+@app.route('/adminViews/adminRegister')
 def adminRegister():
-	return render_template('adminRegister.html')
+	return render_template('/adminViews/adminRegister.html')
 
 #Authenticates the login
 @app.route('/loginAuth', methods=['GET', 'POST'])
