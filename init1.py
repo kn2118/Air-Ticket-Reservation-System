@@ -14,10 +14,30 @@ conn = pymysql.connect(host='localhost',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
 
-@app.route('/success')
+@app.route('/customerViews/success')
 def success():
 	username = session['username']
-	return render_template('success.html',username=username)
+	return render_template('/customerViews/success.html',username=username)
+
+@app.route('/adminViews/successAdmin')
+def successAdmin():
+	username = session['username']
+	return render_template('/adminViews/successAdmin.html',username=username)
+
+@app.route('/customerViews/cancelTripScreen')
+def cancelTripScreen():
+	username = session['username']
+	return render_template('/customerViews/cancelTripScreen.html',username=username)
+
+@app.route('/customerViews/purchaseScreen')
+def purchaseScreen():
+	username = session['username']
+	return render_template('/customerViews/purchaseScreen.html',username=username)
+
+@app.route('/customerViews/rateCommentScreen')
+def rateCommentScreen():
+	username = session['username']
+	return render_template('/customerViews/rateCommentScreen.html',username=username)
 
 @app.route('/default')
 def default():
@@ -94,14 +114,14 @@ def login():
 	return render_template('login.html')
 
 #Define route for register
-@app.route('/customerRegister')
+@app.route('/customerViews/customerRegister')
 def customerRegister():
-	return render_template('customerRegister.html')
+	return render_template('/customerViews/customerRegister.html')
 
 #Define route for register
-@app.route('/adminRegister')
+@app.route('/adminViews/adminRegister')
 def adminRegister():
-	return render_template('adminRegister.html')
+	return render_template('/adminViews/adminRegister.html')
 
 #Authenticates the login
 @app.route('/loginAuth', methods=['GET', 'POST'])
@@ -114,19 +134,36 @@ def loginAuth():
 	cursor = conn.cursor()
 	#executes query
 	# query = 'SELECT * FROM user WHERE username = %s and password = %s'
-	query = 'SELECT * FROM airline_staff WHERE username = %s and passwd = %s'
-	cursor.execute(query, (username, password))
+	queryAdmin = 'SELECT * FROM airline_staff WHERE username = %s and passwd = %s'
+	cursor.execute(queryAdmin, (username, password))
+
 	#stores the results in a variable
-	data = cursor.fetchone()
+	dataAdmin = cursor.fetchone()
 	#use fetchall() if you are expecting more than 1 data row
 	cursor.close()
+
+	cursor = conn.cursor()
+
+	queryCustomer = 'SELECT * FROM customer WHERE username = %s and pass = %s'
+	cursor.execute(queryCustomer, (username, password))
+
+		#stores the results in a variable
+	dataCustomer = cursor.fetchone()
+	#use fetchall() if you are expecting more than 1 data row
+	cursor.close()
+
 	error = None
-	if(data):
-		#creates a session for the the user
-		#session is a built in
+	if(dataAdmin or dataCustomer):
 		session['username'] = username
-		return redirect(url_for('success'))
-		# return redirect(url_for('home'))
+		if dataCustomer:
+			#creates a session for the the user
+			#session is a built in
+			session['admin'] = False
+			return redirect(url_for('success'))
+			# return redirect(url_for('home'))
+		elif dataAdmin:
+			session['admin'] = True
+			return redirect(url_for('successAdmin'))
 	else:
 		#returns an error message to the html page
 		error = 'Invalid login or username'
@@ -136,8 +173,10 @@ def loginAuth():
 @app.route('/registerAuth', methods=['GET', 'POST'])
 def registerAuth():
 	#grabs information from the forms
+
 	username = request.form['username']
 	password = request.form['password']
+	curr_path = request.url_rule
 
 	#cursor used to send queries
 	cursor = conn.cursor()
@@ -151,14 +190,65 @@ def registerAuth():
 	if(data):
 		#If the previous query returns data, then user exists
 		error = "This user already exists"
-		return render_template('register.html', error = error)
+		return render_template('adminRegister.html', error = error)
 	else:
-		ins = 'INSERT INTO airline_staff (username,passwd) VALUES(%s, %s)'
-		cursor.execute(ins, (username, password))
+		dob = request.form['dob']
+		airline_name = request.form['airline_name']
+		first_name = request.form['first_name']
+		last_name = request.form['last_name']
+
+		ins = 'INSERT INTO airline_staff (date_of_birth,username,airline_name,passwd,first_name,last_name) VALUES(%s,%s,%s,%s,%s,%s)'
+		# ins = 'INSERT INTO airline_staff (username,passwd) VALUES(%s, %s)'
+		# cursor.execute(ins, (username, airline_name, password, first_name, last_name))
+		cursor.execute(ins, (dob, username, airline_name, password, first_name, last_name))
 		conn.commit()
 		cursor.close()
 		return render_template('index.html')
 		
+#Authenticates the customer register
+@app.route('/registerCustomerAuth', methods=['GET', 'POST'])
+def registerCustomerAuth():
+	#grabs information from the forms
+
+	username = request.form['username']
+	password = request.form['password']
+	# curr_path = request.url_rule
+
+	#cursor used to send queries
+	cursor = conn.cursor()
+	#executes query
+	query = 'SELECT * FROM airline_staff WHERE username = %s'
+	cursor.execute(query, (username))
+	#stores the results in a variable
+	data = cursor.fetchone()
+	#use fetchall() if you are expecting more than 1 data row
+	error = None
+	if(data):
+		#If the previous query returns data, then user exists
+		error = "This user already exists"
+		return render_template('customerRegister.html', error = error)
+	else:
+
+		building_num = request.form['building_number']
+		city = request.form['city']
+		dob = request.form['dob']
+		email = request.form['email']
+		name = request.form['name']
+		password = request.form['password']
+		passport_country = request.form['passport_country']
+		passport_exp = request.form['passport_expiration']
+		passport_num = request.form['passport_number']
+		phone = request.form['phone_number']
+		state = request.form['state']
+		street = request.form['street']																																		
+		ins = 'INSERT INTO customer (building_num,city,dob,email,name,pass,passport_country,passport_exp,passport_num,phone_number,state,street,username) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s, %s)'
+		# ins = 'INSERT INTO airline_staff (username,passwd) VALUES(%s, %s)'
+		# cursor.execute(ins, (username, airline_name, password, first_name, last_name))
+		cursor.execute(ins, (building_num,city,dob, email, name, password, passport_country, passport_exp, passport_num, phone, state, street, username))
+		conn.commit()
+		cursor.close()
+		return render_template('index.html',erorr=error)
+
 @app.route('/home')
 def home():
     username = session['username']
