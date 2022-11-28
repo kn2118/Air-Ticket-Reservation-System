@@ -24,6 +24,82 @@ def successAdmin():
 	username = session['username']
 	return render_template('/adminViews/successAdmin.html',username=username)
 
+@app.route('/adminView/createAirplane', methods = ['GET', 'POST'])
+def createAirPlane():
+	id = request.form['ID']
+	airline_name = request.form['Airline_name']
+	manufacturer = request.form['Manufacturer']
+	seats = request.form['Seats']
+	age = request.form['Age']
+
+	cursor = conn.cursor()
+	query = "INSERT INTO airplane(id, airline_name, manufacturer, seats, age) VALUES(%s, %s, %s, %s, %s)"
+	error = None
+	try:
+		cursor.execute(query, (id, airline_name, manufacturer, seats, age))
+		conn.commit() 
+		error = "AIRPLANE CREATION SUCCESS!"
+	except:
+		error = "FAILED TO CREATE AIRPLANE, Double Check ID/Airline_Name Fields"
+	finally:
+		cursor.close()
+
+	return render_template('/adminViews/adminOperationResult.html', error=error)
+
+@app.route('/adminView/setFlightStatus', methods = ['GET', 'POST'])
+def setFlightStatus(): 
+	new_stat = request.form['status']
+	f_num = request.form['F#']
+	airline_name = request.form['Airline_name']
+	dep_date_time = request.form['dep']
+
+	cursor = conn.cursor()
+	checkExistsquery = "SELECT * FROM flight WHERE flight_num = %s AND airline_name = %s AND depart_date_time = %s"
+	cursor.execute(checkExistsquery, (f_num, airline_name, dep_date_time))
+	data = cursor.fetchall()
+	cursor.close()
+	error = "FLIGHT STATUS UPDATE COMPLETE!"
+
+	if data:
+		second_cursor = conn.cursor()
+		setStatusquery = "UPDATE flight SET stat=%s WHERE flight_num = %s AND airline_name = %s AND depart_date_time = %s"
+		second_cursor.execute(setStatusquery, (new_stat, f_num, airline_name, dep_date_time))
+		conn.commit() 
+		second_cursor.close()
+	else:
+		error = "NO SUCH FLIGHT EXISTS"
+
+	return render_template('/adminViews/adminOperationResult.html', error=error)
+	
+@app.route('/adminViews/createFlight', methods = ['GET', 'POST'])
+def createFlight(): 
+	f_num = request.form['F#']
+	airline_name = request.form['airline_name']
+	dep_date_time = request.form['dep']
+	dep_airport = request.form['departure_airport']
+	arr_airport = request.form['arrival_airport']
+	airplane_id = request.form['airplane_id']
+	arrive_date_time = request.form['arrive_date_time']
+	b_price = request.form['base_price']
+	status = request.form['status']
+
+	cursor = conn.cursor()
+	query = "INSERT INTO flight VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+	error = None
+
+	try:
+		cursor.execute(query, (f_num,airline_name,dep_date_time,dep_airport,arr_airport, airplane_id,arrive_date_time,b_price,status))
+		conn.commit() 
+		error = "FLIGHT CREATED SUCCESSFULLY!"
+	except:
+		error = "FAILED TO CREATE FLIGHT, Double Check F Number/ Departure Airport/ Arrival Airport"
+	finally:
+		cursor.close()
+
+	return render_template('/adminViews/adminOperationResult.html', error=error)
+
+
+
 @app.route('/customerViews/cancelTripScreen')
 def cancelTripScreen():
 	username = session['username']
@@ -100,7 +176,6 @@ def searchFlightStatus():
 	cursor = conn.cursor()
 	query = "SELECT stat FROM flight WHERE airline_name = %s AND flight_num = %s AND ((DATE(depart_date_time) = %s) OR (DATE(arrive_date_time) = %s))"
 	cursor.execute(query, (airline_name, flight_number, date, date))
-
 	data = cursor.fetchall()
 	error = None 
 	cursor.close()
