@@ -94,6 +94,7 @@ def loginAuth():
 	error = None
 	if(dataAdmin or dataCustomer):
 		session['username'] = username
+		session['logged'] = True 
 		if dataCustomer:
 			#creates a session for the the user
 			#session is a built in
@@ -115,7 +116,6 @@ def registerAuth():
 
 	username = request.form['username']
 	password = request.form['password']
-	curr_path = request.url_rule
 
 	#cursor used to send queries
 	cursor = conn.cursor()
