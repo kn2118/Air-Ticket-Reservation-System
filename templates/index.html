@@ -1,11 +1,8 @@
 <!DOCTYPE html>
 <html>
+  <head> </head>
 
-<head>
-
-</head>
-
-<!-- <body>
+  <!-- <body>
 Default code given by Ratan 	
 {% if not message %}
 	<a href="/login">Login</a>
@@ -32,10 +29,8 @@ Default code given by Ratan
 	{% endif %}
 </body> -->
 
-<body>
-    <h1>
-        Welcome to the homepage
-    </h1>
+  <body>
+    <h1>Welcome to the homepage</h1>
 
     <!-- <h2>Log In</h2>
     <label for="username">Username</label>
@@ -44,49 +39,65 @@ Default code given by Ratan
     <input type="password" id="password">
     <button>Log In</button> -->
 
-	<form action="/loginAuth" method="POST">
-		<h2>Log In</h2>
-		<label for="username">Username</label>
-		<input type="text" name = "username" placeholder="username" required/>
-		<label for="password">Password</label>
-		<input type="password" name = "password" placeholder="password" required/>
-		<button>Log In</button>
-		{% if error %}
-			<p class="error"><strong>Error:</strong> {{error}}</p>
-		{% endif %}
-	</form>
-	
-    <h5>No account? Customer registration
-        <a href="/customerRegister">here</a>
-		 Admin registration 
-        <a href="/adminRegister">here </a>
+    <!-- form redirects to /loginAuth and sends data to server in HTTP body (POST) -->
+    <form action="/loginAuth" method="POST">
+      <h2>Log In</h2>
+      <label for="username">Username</label>
+      <input type="text" name="username" placeholder="username" required />
+      <label for="password">Password</label>
+      <input type="password" name="password" placeholder="password" required />
+      <button>Log In</button>
+      {% if error %}
+      <p class="error"><strong>Error:</strong> {{error}}</p>
+      {% endif %}
+    </form>
+
+    <h5>
+      No account? Customer registration
+      <a href="/customerRegister">here</a>
+      Admin registration
+      <a href="/adminRegister">here </a>
     </h5>
 
-    <br>
-    <br>
+    <br />
+    <br />
 
-    <h2>Search for a flight: </h2>
-    <h3>Starting: </h3>
-    <label for="searchSourceCity">City</label>
-    <input type="text" id="searchSourceCity">
-    <label for="searchSourceAirport">Airport</label>
-    <input type="text" id="searchSourceAirport">
+    <form action="/searchFlight" method="POST">
+      <h2>Search for a flight:</h2>
+      <h3>Starting:</h3>
+      <label for="departCity">City</label>
+      <input type="text" name="departCity" />
+      <label for="departAiport">Aiport</label>
+      <input type="text" name="departAiport" />
+      <h3>Ending:</h3>
+      <label for="arriveCity">City</label>
+      <input type="text" name="arriveCity" />
+      <label for="arriveAirport">Aiport</label>
+      <input type="text" name="arriveAirport" />
+      <h3>Departure Date & Time</h3>
+      <label for="departDT">Date & Time</label>
+      <input type="datetime-local" name="departDT" />
+      <h3>Return Date & Time</h3>
+      <label for="ReturnDT">Date & Time</label>
+      <input type="datetime-local" value = '' name="ReturnDT" />
+      <br />
+      <br />
+      <button>Search</button>
+    </form>
 
-    <h3>Ending: </h3>
-    <label for="searchDestCity">City</label>
-    <input type="text" id="searchDestCity">
-    <label for="searchDestAirport">City</label>
-    <input type="text" id="searchDestAirport">
-    <br>
-    <br>
-    <button>Search</button>
-
-    <h2>Check a flight status: </h2>
-    <h3>Enter flight information</h3>
-    <input placeholder="Airline, flight #, arrival/departure" size="25">
-    <br>
-    <br>
-    <button>Search</button>
-
-</body>
+    <form action="/searchFlightStatus" method= "POST">
+        <h2>Check a flight status:</h2>
+        <h3>Enter flight information</h3>
+        <label for= "airline">Airline</label>
+        <input type = "text" placeholder= "Airline name" name= "airline" size = "25" required/>
+        <label for= "flight">Flight</label>
+        <input type = "number" placeholder = "Flight #" name= "flight" size = "25" required/>
+        
+        <label for= "depArr">Departure/Arrival</label>
+        <input type = "date" name= "depArr" required/>
+        <br />
+        <br />
+        <button>Search</button>
+    </form>
+  </body>
 </html>

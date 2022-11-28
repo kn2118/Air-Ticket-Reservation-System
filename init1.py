@@ -1,4 +1,5 @@
 #Import Flask Library
+from datetime import datetime 
 from flask import Flask, render_template, request, session, url_for, redirect
 import pymysql.cursors
 
@@ -23,9 +24,69 @@ def default():
 	return render_template('default.html',)
 
 #Define a route to hello function
-@app.route('/')
-def hello():
+@app.route('/', methods=['GET','POST'])
+def index():
+	print("Hello")
 	return render_template('index.html')
+
+@app.route('/searchFlight', methods=['GET', 'POST'])
+def searchFlight():
+	# necessary flight information 
+	departure_city = request.form['departCity']
+	departure_airport = request.form['departAiport']
+	arrival_city = request.form['arriveCity']
+	arrival_airport = request.form['arriveAirport']
+	depart_date_time = request.form['departDT']
+	arrival_date_time = request.form['ReturnDT']
+
+	#cursor used to send queries
+	cursor = conn.cursor()
+
+	# execute query for ONEWAY TRIP into cursor
+	if arrival_date_time == "":
+		query = ('SELECT * FROM flight WHERE '
+		'('
+			'(departure_airport = %s OR departure_airport IN (SELECT name FROM airport WHERE city = %s)) AND '
+			'(arrival_airport = %s OR arrival_airport IN (SELECT name FROM airport WHERE city = %s)) AND '
+			'(depart_date_time = %s)'
+		')')
+		cursor.execute(query, (departure_airport, departure_city, arrival_airport, arrival_city, depart_date_time))
+	# execute query for ROUND TRIP into cursor 
+	else:
+		query = ('SELECT * FROM flight WHERE '
+		'('
+			'(departure_airport = %s OR departure_airport IN (SELECT name FROM airport WHERE city = %s)) AND '
+			'(arrival_airport = %s OR arrival_airport IN (SELECT name FROM airport WHERE city = %s)) AND '
+			'(arrive_date_time = %s AND depart_date_time = %s AND arrival_airport = departure_airport)'
+		')')
+		cursor.execute(query, (departure_airport, departure_city, arrival_airport, arrival_city, arrival_date_time, depart_date_time))
+
+	# catch data
+	data = cursor.fetchall()
+	error = None 	
+	cursor.close()
+
+	# TODO: render template with queried data 
+	return render_template('flightdata.html', data= data)
+
+@app.route('/searchFlightStatus', methods=['GET', 'POST'])
+def searchFlightStatus():
+	# necessary flight information 
+
+	airline_name = request.form['airline']
+	flight_number = request.form['flight']
+	date = request.form['depArr']
+
+	cursor = conn.cursor()
+	query = "SELECT stat FROM flight WHERE airline_name = %s AND flight_num = %s AND ((DATE(depart_date_time) = %s) OR (DATE(arrive_date_time) = %s))"
+	cursor.execute(query, (airline_name, flight_number, date, date))
+
+	data = cursor.fetchall()
+	error = None 
+	cursor.close()
+
+	return render_template('flightdata.html', data= data)
+
 
 #Define route for login
 @app.route('/login')
@@ -100,7 +161,6 @@ def registerAuth():
 		
 @app.route('/home')
 def home():
-    
     username = session['username']
     cursor = conn.cursor();
     query = 'SELECT ts, blog_post FROM blog WHERE username = %s ORDER BY ts DESC'
