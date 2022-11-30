@@ -26,12 +26,25 @@ def successAdmin():
 
 @app.route('/adminView/createAirplane', methods = ['GET', 'POST'])
 def createAirPlane():
+	# inputs
 	id = request.form['ID']
-	airline_name = request.form['Airline_name']
 	manufacturer = request.form['Manufacturer']
 	seats = request.form['Seats']
 	age = request.form['Age']
+	airline_name = request.form['Airline_name']
 
+	# check if airine_name matches
+	username = session['username']
+	cursor = conn.cursor()
+	query = "SELECT airline_name from airline_staff WHERE username = %s"
+	cursor.execute(query, (username)) 
+	affiliated_airline = cursor.fetchone()
+	cursor.close()
+	if airline_name != affiliated_airline:
+		error = "THATS NOT YOUR AIRLINE"
+		return render_template('/adminViews/adminOperationResult.html', error=error)
+
+	# Create airplane 
 	cursor = conn.cursor()
 	query = "INSERT INTO airplane(id, airline_name, manufacturer, seats, age) VALUES(%s, %s, %s, %s, %s)"
 	error = None
@@ -44,22 +57,35 @@ def createAirPlane():
 	finally:
 		cursor.close()
 
+	# Results
 	return render_template('/adminViews/adminOperationResult.html', error=error)
 
 @app.route('/adminView/setFlightStatus', methods = ['GET', 'POST'])
 def setFlightStatus(): 
+	# gather inputs
 	new_stat = request.form['status']
 	f_num = request.form['F#']
 	airline_name = request.form['Airline_name']
 	dep_date_time = request.form['dep']
 
+	# check if airine_name matches 
+	username = session['username']
+	cursor = conn.cursor()
+	query = "SELECT airline_name from airline_staff WHERE username = %s"
+	cursor.execute(query, (username)) 
+	affiliated_airline = cursor.fetchone()
+	cursor.close()
+	if airline_name != affiliated_airline:
+		error = "THATS NOT YOUR AIRLINE"
+		return render_template('/adminViews/adminOperationResult.html', error=error)
+
+	# Update flight status 
 	cursor = conn.cursor()
 	checkExistsquery = "SELECT * FROM flight WHERE flight_num = %s AND airline_name = %s AND depart_date_time = %s"
 	cursor.execute(checkExistsquery, (f_num, airline_name, dep_date_time))
 	data = cursor.fetchall()
 	cursor.close()
 	error = "FLIGHT STATUS UPDATE COMPLETE!"
-
 	if data:
 		second_cursor = conn.cursor()
 		setStatusquery = "UPDATE flight SET stat=%s WHERE flight_num = %s AND airline_name = %s AND depart_date_time = %s"
@@ -83,10 +109,21 @@ def createFlight():
 	b_price = request.form['base_price']
 	status = request.form['status']
 
+	# check if airine_name matches 
+	username = session['username']
+	cursor = conn.cursor()
+	query = "SELECT airline_name from airline_staff WHERE username = %s"
+	cursor.execute(query, (username)) 
+	affiliated_airline = cursor.fetchone()
+	cursor.close()
+	if airline_name != affiliated_airline:
+		error = "THATS NOT YOUR AIRLINE"
+		return render_template('/adminViews/adminOperationResult.html', error=error)
+
+	# Create flight 
 	cursor = conn.cursor()
 	query = "INSERT INTO flight VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
 	error = None
-
 	try:
 		cursor.execute(query, (f_num,airline_name,dep_date_time,dep_airport,arr_airport, airplane_id,arrive_date_time,b_price,status))
 		conn.commit() 
@@ -97,7 +134,6 @@ def createFlight():
 		cursor.close()
 
 	return render_template('/adminViews/adminOperationResult.html', error=error)
-
 
 
 @app.route('/customerViews/cancelTripScreen')
@@ -239,6 +275,7 @@ def loginAuth():
 			# return redirect(url_for('home'))
 		elif dataAdmin:
 			session['admin'] = True
+
 			return redirect(url_for('successAdmin'))
 	else:
 		#returns an error message to the html page
