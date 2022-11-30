@@ -2,6 +2,7 @@
 from datetime import datetime 
 from flask import Flask, render_template, request, session, url_for, redirect
 import pymysql.cursors
+from datetime import datetime
 
 #Initialize the app from Flask
 app = Flask(__name__)
@@ -23,6 +24,56 @@ def success():
 def successAdmin():
 	username = session['username']
 	return render_template('/adminViews/successAdmin.html',username=username)
+
+
+#<--------------------------------------------- CUSTOMER ----------------------------------------------------------------------->
+
+
+@app.route('/checkFlight', methods = ['GET', 'POST'])
+def checkFlight(): 
+
+	username = session['username']
+	time = str(request.form.get('viewOption'))
+
+	if time == "Future flights":
+		time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+		# time = "Displaying Future Flights"
+	else:
+		time = "Displaying All Flights"
+		# time = "hehe"
+
+	cursor = conn.cursor()
+	query = "SELECT email FROM customer WHERE username = %s"
+	cursor.execute(query, (username))
+	tempData = cursor.fetchall()
+	email = str(tempData[0]['email'])
+	# data = str(email)
+	cursor.close()
+
+	cursor = conn.cursor()
+	checkExistsquery = "SELECT * FROM ticket WHERE customer_email = %s"
+	cursor.execute(checkExistsquery, (email))
+	data = cursor.fetchall()
+	# data = type(email)
+	cursor.close()
+	error = "FLIGHT STATUS UPDATE COMPLETE!"
+
+	# if data:
+	# 	second_cursor = conn.cursor()
+	# 	setStatusquery = "UPDATE flight SET stat=%s WHERE flight_num = %s AND airline_name = %s AND depart_date_time = %s"
+	# 	second_cursor.execute(setStatusquery, (new_stat, f_num, airline_name, dep_date_time))
+	# 	conn.commit() 
+	# 	second_cursor.close()
+	# else:
+	# 	error = "NO SUCH FLIGHT EXISTS"
+
+	return render_template('/customerViews/customerOperationResult.html', data=data, time = time)
+
+#<--------------------------------------------- CUSTOMER ----------------------------------------------------------------------->
+
+
+#<--------------------------------------------- ADMIN ----------------------------------------------------------------------->
 
 @app.route('/adminView/createAirplane', methods = ['GET', 'POST'])
 def createAirPlane():
@@ -135,6 +186,7 @@ def createFlight():
 
 	return render_template('/adminViews/adminOperationResult.html', error=error)
 
+#<--------------------------------------------- ADMIN ----------------------------------------------------------------------->
 
 @app.route('/customerViews/cancelTripScreen')
 def cancelTripScreen():
@@ -388,6 +440,7 @@ def post():
 @app.route('/logout')
 def logout():
 	session.pop('username')
+	session.pop('admin')
 	return redirect('/')
 		
 app.secret_key = 'some key that you will never guess'

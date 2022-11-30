@@ -8,18 +8,20 @@
     <h5>Log Out</h5>
     <!-- </form> -->
 
-    <h2>View your current flights: </h2>
-    <label for="viewOption">View by: </label>
-    <select id="viewOption">
-        <option>Future flights</option>
-        <option>All flights</option>
-    </select>
-    <br>
-    <br>
-    <button>Search</button>
+    <form action="/checkFlight" method= "POST">
 
+        <h2>View your current flights: </h2>
+        <label for="viewOption">View by: </label>
+        <select name="viewOption">
+            <option>Future flights</option>
+            <option>All flights</option>
+        </select>
+        <br>
+        <br>
+        <button>Search</button>
+    </form>
 
-    <h2>Search for a flight: </h2>
+    <!-- <h2>Search for a flight: </h2>
     <h3>Starting: </h3>
     <label for="searchSourceCity">City</label>
     <input type="text" id="searchSourceCity">
@@ -33,15 +35,59 @@
     <input type="text" id="searchDestAirport">
     <br>
     <br>
-    <button>Search</button>
+    <button>Search</button> -->
 
-    <h2>Check a flight status: </h2>
+    <form action="/searchFlight" method="POST">
+        <h2>Search for a flight:</h2>
+        <h3>Starting:</h3>
+        <label for="departCity">City</label>
+        <input type="text" name="departCity" />
+        <label for="departAiport">Aiport</label>
+        <input type="text" name="departAiport" />
+        <h3>Ending:</h3>
+        <label for="arriveCity">City</label>
+        <input type="text" name="arriveCity" />
+        <label for="arriveAirport">Aiport</label>
+        <input type="text" name="arriveAirport" />
+        <h3>Departure Date & Time</h3>
+        <label for="departDT">Date & Time</label>
+        <input type="datetime-local" name="departDT" />
+        <h3>Return Date & Time</h3>
+        <label for="ReturnDT">Date & Time</label>
+        <input type="datetime-local" value = '' name="ReturnDT" />
+        <br />
+        <br />
+        <button>Search</button>
+      </form>
+    <br><br><br><br>
+
+
+    <!-- <h2>Check a flight status: </h2>
     <h3>Enter flight information</h3>
     <input placeholder="Airline, flight #, arrival/departure" size="25">
     <br>
     <br>
-    <button>Search</button><br><br><br><br>
+    <button>Search</button> -->
+    <form action="/searchFlightStatus" method= "POST">
+        <h2>Check a flight status:</h2>
+        <h3>Enter flight information</h3>
+        <label for= "airline">Airline</label>
+        <input type = "text" placeholder= "Airline name" name= "airline" size = "25" required/>
+        <label for= "flight">Flight</label>
+        <input type = "number" placeholder = "Flight #" name= "flight" size = "25" required/>
 
+        <label for= "depArr">Departure/Arrival</label>
+        <input type = "date" name= "depArr" required/>
+        <br />
+        <br />
+        <button>Search</button>
+    </form>
+    <br><br><br><br>
+
+    <h2>Cancel a flight</h2>
+    <form action="/checkFlight" method= "POST">
+        <button>Search</button>
+    </form>
     <a href="./purchaseScreen">Purchase tickets for a new flight</a><br>
     <a href="./cancelTripScreen">Cancel an existing trip</a><br>
     <a href="./rateCommentScreen">Rate and comment your previous flights!</a><br>
