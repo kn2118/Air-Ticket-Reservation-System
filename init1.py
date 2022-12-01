@@ -2,7 +2,7 @@
 from datetime import datetime 
 from flask import Flask, render_template, request, session, url_for, redirect
 import pymysql.cursors
-from datetime import datetime
+from datetime import datetime, timedelta
 
 #Initialize the app from Flask
 app = Flask(__name__)
@@ -70,123 +70,6 @@ def checkFlight():
 
 	return render_template('/customerViews/customerOperationResult.html', data=data, time = time)
 
-#<--------------------------------------------- CUSTOMER ----------------------------------------------------------------------->
-
-
-#<--------------------------------------------- ADMIN ----------------------------------------------------------------------->
-
-@app.route('/adminView/createAirplane', methods = ['GET', 'POST'])
-def createAirPlane():
-	# inputs
-	id = request.form['ID']
-	manufacturer = request.form['Manufacturer']
-	seats = request.form['Seats']
-	age = request.form['Age']
-	airline_name = request.form['Airline_name']
-
-	# check if airine_name matches
-	username = session['username']
-	cursor = conn.cursor()
-	query = "SELECT airline_name from airline_staff WHERE username = %s"
-	cursor.execute(query, (username)) 
-	affiliated_airline = cursor.fetchone()
-	cursor.close()
-	if airline_name != affiliated_airline:
-		error = "THATS NOT YOUR AIRLINE"
-		return render_template('/adminViews/adminOperationResult.html', error=error)
-
-	# Create airplane 
-	cursor = conn.cursor()
-	query = "INSERT INTO airplane(id, airline_name, manufacturer, seats, age) VALUES(%s, %s, %s, %s, %s)"
-	error = None
-	try:
-		cursor.execute(query, (id, airline_name, manufacturer, seats, age))
-		conn.commit() 
-		error = "AIRPLANE CREATION SUCCESS!"
-	except:
-		error = "FAILED TO CREATE AIRPLANE, Double Check ID/Airline_Name Fields"
-	finally:
-		cursor.close()
-
-	# Results
-	return render_template('/adminViews/adminOperationResult.html', error=error)
-
-@app.route('/adminView/setFlightStatus', methods = ['GET', 'POST'])
-def setFlightStatus(): 
-	# gather inputs
-	new_stat = request.form['status']
-	f_num = request.form['F#']
-	airline_name = request.form['Airline_name']
-	dep_date_time = request.form['dep']
-
-	# check if airine_name matches 
-	username = session['username']
-	cursor = conn.cursor()
-	query = "SELECT airline_name from airline_staff WHERE username = %s"
-	cursor.execute(query, (username)) 
-	affiliated_airline = cursor.fetchone()
-	cursor.close()
-	if airline_name != affiliated_airline:
-		error = "THATS NOT YOUR AIRLINE"
-		return render_template('/adminViews/adminOperationResult.html', error=error)
-
-	# Update flight status 
-	cursor = conn.cursor()
-	checkExistsquery = "SELECT * FROM flight WHERE flight_num = %s AND airline_name = %s AND depart_date_time = %s"
-	cursor.execute(checkExistsquery, (f_num, airline_name, dep_date_time))
-	data = cursor.fetchall()
-	cursor.close()
-	error = "FLIGHT STATUS UPDATE COMPLETE!"
-	if data:
-		second_cursor = conn.cursor()
-		setStatusquery = "UPDATE flight SET stat=%s WHERE flight_num = %s AND airline_name = %s AND depart_date_time = %s"
-		second_cursor.execute(setStatusquery, (new_stat, f_num, airline_name, dep_date_time))
-		conn.commit() 
-		second_cursor.close()
-	else:
-		error = "NO SUCH FLIGHT EXISTS"
-
-	return render_template('/adminViews/adminOperationResult.html', error=error)
-	
-@app.route('/adminViews/createFlight', methods = ['GET', 'POST'])
-def createFlight(): 
-	f_num = request.form['F#']
-	airline_name = request.form['airline_name']
-	dep_date_time = request.form['dep']
-	dep_airport = request.form['departure_airport']
-	arr_airport = request.form['arrival_airport']
-	airplane_id = request.form['airplane_id']
-	arrive_date_time = request.form['arrive_date_time']
-	b_price = request.form['base_price']
-	status = request.form['status']
-
-	# check if airine_name matches 
-	username = session['username']
-	cursor = conn.cursor()
-	query = "SELECT airline_name from airline_staff WHERE username = %s"
-	cursor.execute(query, (username)) 
-	affiliated_airline = cursor.fetchone()
-	cursor.close()
-	if airline_name != affiliated_airline:
-		error = "THATS NOT YOUR AIRLINE"
-		return render_template('/adminViews/adminOperationResult.html', error=error)
-
-	# Create flight 
-	cursor = conn.cursor()
-	query = "INSERT INTO flight VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-	error = None
-	try:
-		cursor.execute(query, (f_num,airline_name,dep_date_time,dep_airport,arr_airport, airplane_id,arrive_date_time,b_price,status))
-		conn.commit() 
-		error = "FLIGHT CREATED SUCCESSFULLY!"
-	except:
-		error = "FAILED TO CREATE FLIGHT, Double Check F Number/ Departure Airport/ Arrival Airport"
-	finally:
-		cursor.close()
-
-	return render_template('/adminViews/adminOperationResult.html', error=error)
-
-#<--------------------------------------------- ADMIN ----------------------------------------------------------------------->
 
 @app.route('/customerViews/cancelTripScreen')
 def cancelTripScreen():
@@ -212,6 +95,308 @@ def default():
 def index():
 	print("Hello")
 	return render_template('index.html')
+
+#<--------------------------------------------- CUSTOMER ----------------------------------------------------------------------->
+
+
+#<--------------------------------------------- ADMIN ----------------------------------------------------------------------->
+
+@app.route('/adminViews/createAirplane', methods = ['GET', 'POST'])
+def createAirPlane():
+	# Get form inputs required to create airplane
+	id = request.form['ID']
+	manufacturer = request.form['Manufacturer']
+	seats = request.form['Seats']
+	age = request.form['Age']
+	airline_name = request.form['Airline_name']
+
+	# Check if admin is authorized to create airplane for this airline 
+	username = session['username']
+	cursor = conn.cursor()
+	query = "SELECT airline_name from airline_staff WHERE username = %s"
+	cursor.execute(query, (username)) 
+	affiliated_airline = cursor.fetchone()['airline_name']
+	cursor.close()
+	# Not authorized to create airplane
+	if airline_name != affiliated_airline:
+		error = "THATS NOT YOUR AIRLINE"
+	# Create airplane 
+	else:
+		cursor = conn.cursor()
+		query = "INSERT INTO airplane VALUES(%s, %s, %s, %s, %s) "
+		error = None
+		try:
+			cursor.execute(query, (id, airline_name, manufacturer, seats, age))
+			conn.commit() 
+			error = "AIRPLANE CREATION SUCCESS!"
+		except: # Catching foreign key constraint errors
+			error = "FAILED TO CREATE AIRPLANE, Double Check ID/Airline_Name Fields"
+		finally:
+			cursor.close()
+	
+	#Get all airplanes that belongs to airline
+	cursor = conn.cursor()
+	query = "SELECT * FROM airplane WHERE airline_name = %s "	
+	cursor.execute(query, affiliated_airline)
+	data = cursor.fetchall()
+	cursor.close()
+
+	# Display all airplanes belonging to admin's airline
+	return render_template('/adminViews/airplaneData.html', data=data, error=error)
+
+@app.route('/adminViews/setFlightStatus', methods= ['GET', 'POST'])
+def setFlightStatus(): 
+	# gather inputs
+	new_stat = request.form['status']
+	f_num = request.form['F#']
+	airline_name = request.form['Airline_name']
+	dep_date_time = request.form['dep']
+
+	# check if airine_name matches 
+	username = session['username']
+	cursor = conn.cursor()
+	query = "SELECT airline_name from airline_staff WHERE username = %s"
+	cursor.execute(query, (username)) 
+	affiliated_airline = cursor.fetchone()['airline_name']
+	cursor.close()
+	if airline_name != affiliated_airline:
+		error = "THATS NOT YOUR AIRLINE"
+		return render_template('/adminViews/statusData.html', error=error)
+
+	# Update flight status 
+	cursor = conn.cursor()
+	checkExistsquery = "SELECT * FROM flight WHERE flight_num = %s AND airline_name = %s AND depart_date_time = %s"
+	cursor.execute(checkExistsquery, (f_num, airline_name, dep_date_time))
+	data = cursor.fetchall()
+	cursor.close()
+	error = "FLIGHT STATUS UPDATE COMPLETE!"
+	if data:
+		second_cursor = conn.cursor()
+		setStatusquery = "UPDATE flight SET stat=%s WHERE flight_num = %s AND airline_name = %s AND depart_date_time = %s"
+		second_cursor.execute(setStatusquery, (new_stat, f_num, airline_name, dep_date_time))
+		conn.commit() 
+		second_cursor.close()
+	else:
+		error = "NO SUCH FLIGHT EXISTS"
+
+	return render_template('/adminViews/statusData.html', error=error)
+	
+@app.route('/adminViews/createFlight', methods = ['GET', 'POST'])
+def createFlight(): 
+	# get form inputs
+	f_num = request.form['F#']
+	airline_name = request.form['airline_name']
+	dep_date_time = request.form['dep']
+	dep_airport = request.form['departure_airport']
+	arr_airport = request.form['arrival_airport']
+	airplane_id = request.form['airplane_id']
+	arrive_date_time = request.form['arrive_date_time']
+	b_price = request.form['base_price']
+	status = request.form['status']
+
+	# check if airine_name matches 
+	username = session['username']
+	cursor = conn.cursor()
+	query = "SELECT airline_name from airline_staff WHERE username = %s"
+	cursor.execute(query, (username)) 
+	affiliated_airline = cursor.fetchone()['airline_name']
+	cursor.close()
+	if airline_name != affiliated_airline:
+		error = "THATS NOT YOUR AIRLINE"
+	else:
+		# Create flight 
+		cursor = conn.cursor()
+		query = "INSERT INTO flight VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+		error = None
+		try:
+			cursor.execute(query, (f_num,airline_name,dep_date_time,dep_airport,arr_airport, airplane_id,arrive_date_time,b_price,status))
+			conn.commit() 
+			error = "FLIGHT CREATED SUCCESSFULLY!"
+		except:
+			error = "FAILED TO CREATE FLIGHT, Double Check F Number/ Departure Airport/ Arrival Airport"
+		finally:
+			cursor.close()
+
+	return render_template('/adminViews/createFlightData.html', error=error)
+
+@app.route('/adminViews/adminViewFlight', methods= ['GET', 'POST'])
+def viewFlight():
+	# get airline
+	username = session['username']
+	cursor = conn.cursor()
+	query = "SELECT airline_name FROM airline_staff WHERE username = %s"
+	cursor.execute(query, (username)) 
+	affiliated_airline = cursor.fetchone()['airline_name']
+	cursor.close()
+
+	# get time 30 days from now 
+	starttime = datetime.now()
+	delta = timedelta(days= 30)
+	endtime = delta + starttime 
+	starttime = starttime.strftime("%Y-%m-%d %H:%M:%S")
+	endtime = endtime.strftime("%Y-%m-%d %H:%M:%S")
+
+	# get future flights > current time, < 30 days from now
+	cursor = conn.cursor()
+	# we will assume flight operated by airline are atomic; thus flight must complete before 30 day mark 
+	query = ( 
+			"SELECT flight_num, airline_name, depart_date_time, departure_airport, arrival_airport, airplane_id, arrive_date_time, base_price, stat, AVG(rating) AS avg_rat FROM "
+			"(SELECT * from flight WHERE airline_name = %s AND arrive_date_time >= %s AND arrive_date_time <= %s) as flight NATURAL LEFT OUTER JOIN review "
+			"GROUP BY flight_num, airline_name, depart_date_time" 
+			)
+	cursor.execute(query, (affiliated_airline, starttime, endtime))
+	data = cursor.fetchall()
+	cursor.close()
+	error = None 
+
+	# refresh with parameters (try statement will collapse if this originates from view button)
+	# + get average ratings for each flight
+	try: 
+		# past/present/current
+		reference = request.form['reference']
+		# get time range
+		rangeLow = request.form['rangeLow']
+		rangeHigh = request.form['rangeHigh']
+		# get more info (at least one of these are necessary for querying)
+		source_air = request.form['source_air']
+		dest_air = request.form['dest_air']
+		source_city = request.form['source_city']
+		dest_city = request.form['dest_city']
+
+		cursor = conn.cursor()
+		query = ""
+		if reference == "past":
+			query = (
+			"SELECT flight_num, airline_name, depart_date_time, departure_airport, arrival_airport, airplane_id, arrive_date_time, base_price, stat, AVG(rating) as avg_rat FROM "
+				"(" 
+					"SELECT * from flight where airline_name = %s AND arrive_date_time < %s AND "
+					"(departure_airport = %s OR arrival_airport = %s OR (departure_airport IN (SELECT name FROM airport WHERE city = %s)) OR (arrival_airport IN (SELECT name FROM airport WHERE city = %s))) "
+				") as flight NATURAL LEFT OUTER JOIN review "
+				"GROUP BY flight_num, airline_name, depart_date_time " 
+			) 
+			cursor.execute(query, (affiliated_airline, rangeLow, source_air, dest_air, source_city, dest_city))
+		elif reference == "current":
+			query = (	
+			"SELECT flight_num, airline_name, depart_date_time, departure_airport, arrival_airport, airplane_id, arrive_date_time, base_price, stat, AVG(rating) as avg_rat FROM "
+				"("
+					"SELECT * from flight where airline_name = %s AND arrive_date_time >= %s AND arrive_date_time <= %s AND "
+					"(departure_airport = %s OR arrival_airport = %s OR (departure_airport IN (SELECT name FROM airport WHERE city = %s)) OR (arrival_airport IN (SELECT name FROM airport WHERE city = %s))) "
+				") as flight NATURAL LEFT OUTER JOIN review "
+				"GROUP BY flight_num, airline_name, depart_date_time" 
+			)
+			cursor.execute(query, (affiliated_airline, rangeLow, rangeHigh, source_air, dest_air, source_city, dest_city))
+		else:
+			query = (
+			"SELECT flight_num, airline_name, depart_date_time, departure_airport, arrival_airport, airplane_id, arrive_date_time, base_price, stat, AVG(rating) as avg_rat FROM "
+				"("
+					"SELECT * FROM flight WHERE airline_name = %s AND arrive_date_time > %s AND " 
+					"(departure_airport = %s OR arrival_airport = %s OR (departure_airport IN (SELECT name FROM airport WHERE city = %s)) OR (arrival_airport IN (SELECT name FROM airport WHERE city = %s))) "
+				") as flight NATURAL LEFT OUTER JOIN review "
+				"GROUP BY flight_num, airline_name, depart_date_time" 
+			)
+			cursor.execute(query, (affiliated_airline, rangeHigh, source_air, dest_air, source_city, dest_city))
+		data = cursor.fetchall()
+		cursor.close()
+	# if just view button press, proceed to return as normal 
+	except:
+		pass 
+
+	# render future flights by default
+	return render_template('/adminViews/adminViewFlight.html', time= starttime, data=data,  error=error)
+
+@app.route('/adminViews/addAirport', methods=['POST', 'GET'])
+def addAirport():
+	# gather inputs
+	name = request.form['name']
+	country = request.form['country']
+	city = request.form['city']
+	type = request.form['type']
+
+	cursor = conn.cursor()
+	query = "INSERT INTO airport VALUES(%s, %s, %s, %s)"
+	error = None 
+	try:
+		cursor.execute(query, (name, city, country, type))
+		conn.commit()
+		error = "Airport Addition Successful"
+	except:
+		error = "Add Airport Failed, check name input again"
+	
+	cursor.close()
+	return render_template('adminViews/airportData.html', error=error)
+	
+@app.route('/adminViews/viewReviews', methods=['POST', 'GET'])
+def viewReviews():
+	# gather flight info 
+	flight_num = request.form['F#']
+	airline_name = request.form['airline_name']
+	depart_date_time = request.form['depart_date_time']
+
+	# get reviews, ratings, and customer info of the relevant flight
+	cursor = conn.cursor()
+	query = "SELECT * FROM review WHERE flight_num = %s AND airline_name= %s AND depart_date_time = %s "
+	cursor.execute(query, (flight_num, airline_name, depart_date_time))
+	data = cursor.fetchall()
+	cursor.close()
+	error = None 
+
+	return render_template('adminViews/reviewsData.html', data=data, flight_num = flight_num, airline_name = airline_name, depart_date_time = depart_date_time, error=error)
+	
+@app.route('/adminViews/viewCustomers')
+def viewCustomers():
+	# # get airline
+	# username = session['username']
+	# cursor = conn.cursor()
+	# query = "SELECT airline_name FROM airline_staff WHERE username = %s"
+	# cursor.execute(query, (username)) 
+	# affiliated_airline = cursor.fetchone()['airline_name']
+	# cursor.close()
+	
+	# get time 30 days from now 
+	endtime = datetime.now()
+	delta = timedelta(days= 365)
+	starttime = endtime - delta
+	starttime = starttime.strftime("%Y-%m-%d %H:%M:%S")
+	endtime = endtime.strftime("%Y-%m-%d %H:%M:%S")
+
+	# get most frequent customer within last year
+	cursor = conn.cursor()
+	query = (
+		"SELECT name, email, MAX(c) as max_freq FROM"
+		"("
+			"SELECT name, email, COUNT(ticket_id) as c FROM (ticket,customer) NATURAL JOIN flight "
+			"WHERE arrive_date_time >= %s AND arrive_date_time <= %s AND ticket.customer_email = customer.email "
+			"GROUP BY email "
+		") AS customer_count" 
+	)
+	cursor.execute(query, (starttime, endtime))
+	MFCdata = cursor.fetchall()
+	cursor.close()
+	error = None 
+
+	# get customer list
+	cursor = conn.cursor()
+	query = "SELECT * from customer"
+	cursor.execute(query)
+	customers = cursor.fetchall()
+	cursor.close()
+
+	return render_template('/adminViews/customerData.html', data= MFCdata, customers = customers)
+
+@app.route('/adminViews/getCustomerFlights', methods= ['POST', 'GET']) 
+def getCustomerFlights():
+	email = request.form['email']
+
+	cursor = conn.cursor()
+	query = "SELECT flight_num, airline_name FROM ticket WHERE customer_email = %s"
+	cursor.execute(query, email)
+	data = cursor.fetchall()
+	cursor.close()
+
+	return render_template('/adminViews/customerFlights.html', data=data)
+#<--------------------------------------------- ADMIN ----------------------------------------------------------------------->
+
+#<--------------------------------------------- NON-USER FEATURES ----------------------------------------------------------------------->
 
 @app.route('/searchFlight', methods=['GET', 'POST'])
 def searchFlight():
@@ -270,6 +455,7 @@ def searchFlightStatus():
 
 	return render_template('flightdata.html', data= data)
 
+#<--------------------------------------------- NON-USER FEATURES ----------------------------------------------------------------------->
 
 #Define route for login
 @app.route('/login')
@@ -413,30 +599,6 @@ def registerCustomerAuth():
 		cursor.close()
 		return render_template('index.html',erorr=error)
 
-@app.route('/home')
-def home():
-    username = session['username']
-    cursor = conn.cursor();
-    query = 'SELECT ts, blog_post FROM blog WHERE username = %s ORDER BY ts DESC'
-    cursor.execute(query, (username))
-    data1 = cursor.fetchall() 
-    for each in data1:
-        print(each['blog_post'])
-    cursor.close()
-    return render_template('home.html', username=username, posts=data1)
-
-		
-@app.route('/post', methods=['GET', 'POST'])
-def post():
-	username = session['username']
-	cursor = conn.cursor();
-	blog = request.form['blog']
-	query = 'INSERT INTO blog (blog_post, username) VALUES(%s, %s)'
-	cursor.execute(query, (blog, username))
-	conn.commit()
-	cursor.close()
-	return redirect(url_for('home'))
-
 @app.route('/logout')
 def logout():
 	session.pop('username')
@@ -449,3 +611,33 @@ app.secret_key = 'some key that you will never guess'
 #for changes to go through, TURN OFF FOR PRODUCTION
 if __name__ == "__main__":
 	app.run('127.0.0.1', 5000, debug = True)
+
+
+
+# CODE FOR REFERENCE
+# -----------------------------------------------------------------------------
+# @app.route('/home')
+# def home():
+#     username = session['username']
+#     cursor = conn.cursor()
+#     query = 'SELECT ts, blog_post FROM blog WHERE username = %s ORDER BY ts DESC'
+#     cursor.execute(query, (username))
+#     data1 = cursor.fetchall() 
+#     for each in data1:
+#         print(each['blog_post'])
+#     cursor.close()
+#     return render_template('home.html', username=username, posts=data1)
+
+# @app.route('/post', methods=['GET', 'POST'])
+# def post():
+# 	username = session['username']
+# 	cursor = conn.cursor()
+# 	blog = request.form['blog']
+# 	query = 'INSERT INTO blog (blog_post, username) VALUES(%s, %s)'
+# 	cursor.execute(query, (blog, username))
+# 	conn.commit()
+# 	cursor.close()
+# 	return redirect(url_for('home'))
+
+# -----------------------------------------------------------------------------
+

@@ -1,0 +1,133 @@
+<html>
+    <head></head>
+    <body>
+    
+    <h1>Current Date & Time: {{time}} ET</h1>
+    <h1>View Flight Information</h1>
+    <table>
+        <th>Flight Number</th>
+        <th>Airline Name</th>
+        <th>Depart Date & Time</th>
+        <th>Departure Airport</th>
+        <th>Arrival Airport</th>
+        <th>AirplaneID</th>
+        <th>Arrival Date & Time</th>
+        <th>Base Price</th>
+        <th>Status</th>
+        <th>Average Rating</th>
+
+    {% for line in data%}
+		<tr>
+			<td>{{line['flight_num']}}</td>
+			<td>{{line['airline_name']}}</td>
+			<td>{{line['depart_date_time']}}</td>
+			<td>{{line['departure_airport']}}</td>
+			<td>{{line['arrival_airport']}}</td>
+			<td>{{line['airplane_id']}}</td>
+			<td>{{line['arrive_date_time']}}</td>
+			<td>{{line['base_price']}}</td>
+			<td>{{line['stat']}}</td>
+            <td>
+                <form action="/adminViews/viewReviews" method= "POST">
+                    <input type = "hidden" name = "F#" value ="{{line['flight_num']}}" />
+                    <input type= "hidden" name = "airline_name" value= "{{line['airline_name']}}" />   
+                    <input type="hidden" name = "depart_date_time" value= "{{line['depart_date_time']}}"/>
+                    <button>{{line['avg_rat']}}</button> 
+                </form>
+            </td>
+		</tr>
+	{% endfor %}
+    </table>
+
+    <form action= "/adminViews/adminViewFlight" method= "POST">
+        <h2>Filter Flights:</h2>
+        <select name= "reference" required>
+            <option value= "past">Past</option>
+            <option value= "current">Current</option>
+            <option value= "present">Future</option>
+        </select>  
+        <label for="rangeLow">Start Time</label>
+        <input type= "datetime-local" name="rangeLow" required/>
+        <label for="rangeHigh">End Time</label>
+        <input type= "datetime-local" name = "rangeHigh" required />
+        <br>     
+        <label for= "source_air">Source Airport</label>
+        <input type = "text" name = "source_air"/>
+        <label for= "dest_air">Destination Airport</label>
+        <input type = "text" name = "dest_air"/>
+        <label for= "source_city">Source City</label>
+        <input type = "text" name = "source_city"/>
+        <label for= "dest_city">Destination City</label>
+        <input type = "text" name = "dest_city"/>
+        
+        <br>
+        <br>
+        <button>Refresh</button>
+    </form>
+
+    <form action="/adminViews/setFlightStatus" method="POST">
+        <h2>Set Flight Status:</h2>
+        <label for="F#">Flight Number</label>
+        <input type="number" name="F#" required/>
+        <label for="Airline_name">Airline Name</label>
+        <input type="text" name="Airline_name" required/>
+        <label for="dep">Departure Date & Time</label>
+        <input  type="datetime-local" name="dep" required/>
+        <label for="status">Flight Status</label>
+        <!-- <input type="text" name="status" required/> -->
+        <select name="status" required>
+            <option value="CANCELED">CANCELED</option>
+            <option value="ON-TIME">ON TIME</option>
+            <option value="DELAYED">DELAYED</option>
+        </select>
+        <br />
+        <br />
+        <button>SET STATUS</button>
+    </form>
+
+    <form action="/adminViews/createFlight" method="POST">
+        <h2>Create Flight:</h2>
+        <label for="F#">Flight Number</label>
+        <input type= "number" name="F#" required/>
+        <label for="airline_name" >Airline Name</label>
+        <input type= "text" name="airline_name" required/>
+        <label for="dep" >Departure Date & Time</label>
+        <input type= "datetime-local" name="dep" required/>
+        <label for="departure_airport">Departure Airport</label>
+        <!-- TODO: RESOLVE -> INSERTING NULL FROM HTML VIOLATES FOREIGN KEY CONSTRAINT; MAKING REQUIRED TEMPORARILY  -->
+        <input type= "text" name="departure_airport" required/>
+        <br> 
+        <label for="arrival_airport">Arrival Airport</label>
+        <input type= "text" name="arrival_airport" required/> 
+        <label for="airplane_id">Airplane ID</label>
+        <input type= "number" name="airplane_id" required/>
+        <label for="arrive_date_time" >Arrive Date & Time</label>
+        <input type= "datetime-local" name="arrive_date_time"/>
+        <label for="base_price">Base Price</label>
+        <input type= "number" name="base_price"/>
+        <br> 
+        <label for="status">Status</label>
+        <select name="status" >
+            <option value="">--</option>
+            <option value= "ON TIME">ON TIME</option>
+            <option value= "DELAYED">DELAYED</option>
+            <option value="CANCELED">CANCELED</option>
+        </select>
+        <br />
+        <br />
+        <button>CREATE FLIGHT</button>
+    </form>
+
+
+    <br>
+    <br>
+    <br>
+        <a href="/adminViews/successAdmin">GO BACK</a>
+    </body>
+
+    <style type="text/css">
+		table, th, td{
+			border: 1px solid black;
+		}
+	</style>
+</html>
