@@ -2,38 +2,52 @@
     <head></head>
     <body>
     
+    {{email}}
+    <!-- <h1>{{data}}</h1> -->
     <h1>{{time}}</h1>
-    <h1>Cancel A Flight</h1>
+    <!-- {{data[0]}}
+    {{data[1]}}
+    {{data[2]}} -->
+
+
+
+
     <table>
-        <th>Ticket ID</th>
-        <th>Plane ID</th>
-        <th>Airline</th>
         <th>Flight Number</th>
-        <th>Price</th>
+        <th>Airline</th>
+        <th>Departure Date & Time</th>
+        <th>Departure Airport</th>
+        <th>Arrival Airport</th>
+        <th>Arrival Date & Time</th>
         <th>Status</th>
-        <th>Depart</th>
-        <th>Arrive</th>
+        <!-- <th>Arrive</th>
         <th>From</th>
-        <th>To</th>
+        <th>To</th> -->
 
     {% for line in data%}
 		<tr>
-			<td>{{line['ticket_id']}}</td>
-			<td>{{line['customer_email']}}</td>
-			<td>{{line['airline_name']}}</td>
 			<td>{{line['flight_num']}}</td>
-			<td>{{line['card_type']}}</td>
-			<td>{{line['card_name']}}</td>
-			<td>{{line['card_num']}}</td>
-			<td>{{line['exp_date']}}</td>
-			<td>{{line['sold_price']}}</td>
-			<td>{{line['purchase_date_time']}}</td>
+			<td>{{line['airline_name']}}</td>
+			<td>{{line['depart_date_time']}}</td>
+			<td>{{line['departure_airport']}}</td>
+			<td>{{line['arrival_airport']}}</td>
+			<td>{{line['arrive_date_time']}}</td>
+			<td>{{line['stat']}}</td>
+			<!-- <td>{{line['exp_date']}}</td> -->
+			<!-- <td>{{line['sold_price']}}</td> -->
+			<!-- <td>{{line['purchase_date_time']}}</td> -->
 			
 		</tr>
 	{% endfor %}
     </table>
 
-
+    <br>
+    <br>
+    <br>
+    <!-- <form action="/adminView/createAirplane" method="POST" >
+        <label for="flight_num">Which flight would you like to cancel?</label>
+        <input type = "input" name="flight_num" required />
+    </form> -->
     <br>
     <br>
     <br>
