@@ -39,13 +39,14 @@ def checkFlight():
 
 
 	# get email from customer data -> use email to find ticket -> get flights that matches flight_id
-	cursor = conn.cursor()
-	query = "SELECT email FROM customer WHERE username = %s"
-	cursor.execute(query, (username))
-	tempData = cursor.fetchall()
-	email = str(tempData[0]['email'])
-	# data = str(email)
-	cursor.close()
+	# cursor = conn.cursor()
+	# query = "SELECT email FROM customer WHERE username = %s"
+	# cursor.execute(query, (username))
+	# tempData = cursor.fetchall()
+	# email = str(tempData[0]['email'])
+	# # data = str(email)
+	# cursor.close()
+	email = session['email']
 
 	cursor = conn.cursor()
 
@@ -66,13 +67,14 @@ def purchaseView():
 	username = session['username']
 
 		# get email from customer data -> use email to find ticket -> get flights that matches flight_id
-	cursor = conn.cursor()
-	query = "SELECT email FROM customer WHERE username = %s"
-	cursor.execute(query, (username))
-	tempData = cursor.fetchall()
-	email = str(tempData[0]['email'])
-	# data = str(email)
-	cursor.close()
+	# cursor = conn.cursor()
+	# query = "SELECT email FROM customer WHERE username = %s"
+	# cursor.execute(query, (username))
+	# tempData = cursor.fetchall()
+	# email = str(tempData[0]['email'])
+	# # data = str(email)
+	# cursor.close()
+	email = session['email']
 
 	curr_time = datetime.now()
 	day_after = curr_time + timedelta(days=1)
@@ -98,13 +100,15 @@ def cancelView():
 	time = str(request.form.get('viewOption'))
 
 	# get email from customer data -> use email to find ticket -> get flights that matches flight_id
-	cursor = conn.cursor()
-	query = "SELECT email FROM customer WHERE username = %s"
-	cursor.execute(query, (username))
-	tempData = cursor.fetchall()
-	email = str(tempData[0]['email'])
-	# data = str(email)
-	cursor.close()
+	# cursor = conn.cursor()
+	# query = "SELECT email FROM customer WHERE username = %s"
+	# cursor.execute(query, (username))
+	# tempData = cursor.fetchall()
+	# email = str(tempData[0]['email'])
+	# # data = str(email)
+	# cursor.close()
+
+	email = session['email']
 
 	cursor = conn.cursor()
 
@@ -124,13 +128,15 @@ def cancelFlight():
 	flight_num = request.form['flight_num']
 	time = "hehe"
 
-	cursor = conn.cursor()
-	query = "SELECT email FROM customer WHERE username = %s"
-	cursor.execute(query, (username))
-	tempData = cursor.fetchall()
-	email = str(tempData[0]['email'])
-	# data = str(email)
-	cursor.close()
+	# cursor = conn.cursor()
+	# query = "SELECT email FROM customer WHERE username = %s"
+	# cursor.execute(query, (username))
+	# tempData = cursor.fetchall()
+	# email = str(tempData[0]['email'])
+	# # data = str(email)
+	# cursor.close()
+
+	email = session['email']
 
 	# result_2 = current_date + timedelta(days=7)
 	# Adds 7 days to current_date
@@ -150,7 +156,7 @@ def cancelFlight():
 
 	cursor = conn.cursor()
 	query = "SELECT * FROM flight WHERE ((flight_num,airline_name) IN (SELECT flight_num, airline_name FROM ticket WHERE customer_email = %s)) AND depart_date_time > TIME(%s)"
-	cursor.execute(query,email,day_after)
+	cursor.execute(query,(email,day_after))
 
 	data = cursor.fetchall()
 	cursor.close()
@@ -169,13 +175,14 @@ def purchaseFlight():
 
 	time = expiration_date
 
-	cursor = conn.cursor()
-	query = "SELECT email FROM customer WHERE username = %s"
-	cursor.execute(query, (username))
-	tempData = cursor.fetchall()
-	email = str(tempData[0]['email'])
-	# data = str(email)
-	cursor.close()
+	# cursor = conn.cursor()
+	# query = "SELECT email FROM customer WHERE username = %s"
+	# cursor.execute(query, (username))
+	# tempData = cursor.fetchall()
+	# email = str(tempData[0]['email'])
+	# # data = str(email)
+	# cursor.close()
+	email = session['email']
 	purchase_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 	cursor = conn.cursor()
 	query = "SELECT MAX(ticket_id) from ticket WHERE airline_name = %s"
@@ -222,19 +229,17 @@ def purchaseFlight():
 def rateCommentPage(): 
 
 	username = session['username']
-	time = str(request.form.get('viewOption'))
-
-	all = (time == "All flights")
-
 
 	# get email from customer data -> use email to find ticket -> get flights that matches flight_id
-	cursor = conn.cursor()
-	query = "SELECT email FROM customer WHERE username = %s"
-	cursor.execute(query, (username))
-	tempData = cursor.fetchall()
-	email = str(tempData[0]['email'])
-	# data = str(email)
-	cursor.close()
+	# cursor = conn.cursor()
+	# query = "SELECT email FROM customer WHERE username = %s"
+	# cursor.execute(query, (username))
+	# tempData = cursor.fetchall()
+	# email = str(tempData[0]['email'])
+	# # data = str(email)
+	# cursor.close()
+
+	email = session['email']
 
 	cursor = conn.cursor()
 
@@ -245,7 +250,7 @@ def rateCommentPage():
 	# data = type(email)
 	cursor.close()
 
-	return render_template('/customerViews/rateCommentScreen.html', data=data, time = time, d=session['email'])
+	return render_template('/customerViews/rateCommentScreen.html', data=data)
 
 @app.route('/rateComment', methods = ['GET', 'POST'])
 def rateComment():
@@ -285,10 +290,16 @@ def trackSpending():
 	username = session['username']
 	email = session['email']
 
+	curr_time = datetime.now()
+	before = curr_time - timedelta(days=180)
+	before = before.strftime("%Y-%m-%d %H:%M:%S")
+	
 	# get email from customer data -> use email to find ticket -> get flights that matches flight_id
 	cursor = conn.cursor()
-	query = "SELECT SUM(sold_price) from ticket WHERE customer_email = %s"
-	cursor.execute(query, (email))
+	# query = "SELECT SUM(sold_price) from ticket WHERE customer_email = %s"
+	query = "SELECT SUM(sold_price) from ticket WHERE customer_email = %s AND purchase_date_time > %s"
+
+	cursor.execute(query, (email,before))
 	tempData = cursor.fetchall()
 	totalSpent = tempData[0]['SUM(sold_price)']
 
