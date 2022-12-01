@@ -1,0 +1,51 @@
+<html>
+    <head></head>
+    <body>
+    <br>
+    <br>
+    <h1>Most Frequent Customer Within Past Year</h1>
+    <table>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Frequency</th>
+
+    {% for line in data%}
+		<tr>
+			<td>{{line['name']}}</td>
+			<td>{{line['email']}}</td>
+			<td>{{line['max_freq']}}</td>
+		</tr>
+	{% endfor %}
+    </table>
+
+    <h1>Customers</h1>
+    <table>
+        <th>Name</th>
+        <th>Email</th>
+
+    {% for line in customers%}
+		<tr>
+			<td>{{line['name']}}</td>
+			<td>{{line['email']}}</td>
+		</tr>
+	{% endfor %}
+    </table>
+
+
+    <form action="/adminViews/getCustomerFlights" method="POST" >
+        <label for="email">Email</label>
+        <input type="text" name="email" required>
+        <button>Go</button>
+    </form>
+
+    <br>
+    <br>
+        <a href="/adminViews/successAdmin">GO BACK</a> 
+    </body>
+
+    <style type="text/css">
+		table, th, td{
+			border: 1px solid black;
+		}
+	</style>
+</html>

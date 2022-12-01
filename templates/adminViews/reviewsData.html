@@ -1,0 +1,44 @@
+<html>
+    <head></head>
+    <body>
+    <h1>{{error}}</h1>
+    <br>
+    <br>
+    <h1>Flight Info</h1>
+    <table>
+        <th>Flight Number</th>
+        <th>Airline Name</th>
+        <th>Departure Date & Time</th>
+		<tr>
+			<td>{{flight_num}}</td>
+			<td>{{airline_name}}</td>
+            <td>{{depart_date_time}}</td>
+		</tr>
+    </table>
+
+    <h1> Reviews </h1>
+    <table>
+        <th>Rating</th>
+        <th>Comment</th>
+        <th>Email</th>
+        {% for line in data%}
+        <tr>
+            <td>{{line['rating']}}</td>
+            <td>{{line['review']}}</td>
+            <td>{{line['email']}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <br>
+    <br>
+    <br>
+        <a href="/adminViews/adminViewFlight">GO BACK</a>
+    </body>
+
+    <style type="text/css">
+		table, th, td{
+			border: 1px solid black;
+		}
+	</style>
+</html>

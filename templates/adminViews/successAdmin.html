@@ -7,11 +7,17 @@
 <body>
     <!-- <form action="/post" method="POST"> -->
     <h1>Welcome admin {{username}} (Admin Page)</h1>
-    <a href = "/">Log Out</a>
-    <br />
-    <br />
+    
+    <form action= "/logout">
+        <button>Logout</button>
+    </form>
 
-    <form action="/adminView/createAirplane" method="POST" >
+    <form action="/adminViews/adminViewFlight" method="POST" >
+        <h2>View All Flights:</h2>
+        <button>VIEW</button>
+    </form>
+
+    <form action="/adminViews/createAirplane" method="POST" >
         <h2>Create Airplane:</h2>
         <label for="ID">ID</label>
         <input type = "number" name="ID" required />
@@ -28,104 +34,33 @@
         <button>CREATE</button>
     </form>
 
-    <form action="/adminView/setFlightStatus" method="POST">
-        <h2>Set Flight Status:</h2>
-        <label for="F#">F Number</label>
-        <input type="number" name="F#" required/>
-        <label for="Airline_name">Airline Name</label>
-        <input type="text" name="Airline_name" required/>
-        <label for="dep">Departure Date & Time</label>
-        <input  type="datetime-local" name="dep" required/>
-        <label for="status">Flight Status</label>
-        <!-- <input type="text" name="status" required/> -->
-        <select name="status" required>
-            <option value="CANCELED">CANCELED</option>
-            <option value="ON-TIME">ON TIME</option>
-            <option value="DELAYED">DELAYED</option>
+    <form action="/adminViews/addAirport" method="POST">
+        <h2>Add New Airport</h2>
+        <label for="name" required>Name</label>
+        <input type= "text" name="name"/>
+        <label for="city" >City</label>
+        <input type= "text" name="city"/>
+        <label for="country" >Country</label>
+        <input type= "text" name="country"/>
+        <label name="type">Type</label>
+        <select name="type">
+            <option value="">--</option>
+            <option value="domestic">domestic</option>
+            <option value="international">international</option>
+            <option value="both">both</option>
         </select>
         <br />
         <br />
-        <button>SET STATUS</button>
+        <button>Add Airport</button>
     </form>
 
-    <form action="/adminViews/createFlight" method="POST">
-        <h2>Create Flight:</h2>
-        <label for="F#">Flight Number</label>
-        <input type= "number" name="F#" required/>
-        <label for="airline_name" >Airline Name</label>
-        <input type= "text" name="airline_name" required/>
-        <label for="dep" >Departure Date & Time</label>
-        <input type= "datetime-local" name="dep" required/>
-        <label for="departure_airport">Departure Airport</label>
-        <input type= "text" name="departure_airport" value= 'NULL'/>
-        <label for="arrival_airport" >Arrival Airport</label>
-        <input type= "text" name="arrival_airport" value= 'NULL'/> 
-        <label for="airplane_id" >Airplane ID</label>
-        <input type= "number" name="airplane_id" value= 'NULL'/>
-        <label for="arrive_date_time" >Arrive Date & Time</label>
-        <input type= "datetime-local" name="arrive_date_time" value= 'NULL'/>
-        <label for="base_price" >Base Price</label>
-        <input type= "number" name="base_price" placeholder="PLEASE ENTER WHOLE DOLLARS" value= 'NULL'/>
-        <label for="status" >Status</label>
-        <input type= "text" name="status" placeholder="ON TIME/DELAYED/CANCELED" value= 'NULL'/>
-        <br />
-        <br />
-        <button>CREATE FLIGHT</button>
+    
+    <form action= "/adminViews/viewCustomers">
+        <h2>View Customers</h2>
+        <button>View</button>
     </form>
 
-    <form action="">
-        <h2>View All Flights </h2>
-        <label></label>
-        <input/>
-        <br />
-        <br />
-        <button></button>
-    </form>
 
-    <form action="">
-        <h2>View Passenger of Flights </h2>
-        <label></label>
-        <input/>
-        <br />
-        <br />
-        <button></button>
-    </form>
-
-    <form action="">
-        <h2>View Flights of Passenger </h2>
-        <label></label>
-        <input/>
-        <br />
-        <br />
-        <button></button>
-    </form>
-
-    <form action="">
-        <h2>View Avg Rating, Ratings, and Comments of Flight </h2>
-        <label></label>
-        <input/>
-        <br />
-        <br />
-        <button></button>
-    </form>
-
-    <form action="">
-        <h2>Most Frequent Customer of Year, Number of tickets sold every month, Revenue earned by year </h2>
-        <label></label>
-        <input/>
-        <br />
-        <br />
-        <button></button>
-    </form>
-
-    <form action="">
-        <h2>How many flights on-time, delayed </h2>
-        <label></label>
-        <input/>
-        <br />
-        <br />
-        <button></button>
-    </form>
 </body>
 
 </html>

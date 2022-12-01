@@ -1,0 +1,31 @@
+<html>
+    <head></head>
+    <body>
+    <h1>{{error}}</h1>
+    <br>
+    <br>
+    <h1>Customer Flights</h1>
+    <table>
+        <th>Flight Number</th>
+        <th>Airline Name</th>
+
+    {% for line in data%}
+		<tr>
+			<td>{{line['flight_num']}}</td>
+			<td>{{line['airline_name']}}</td>
+		</tr>
+	{% endfor %}
+    </table>
+
+    <br>
+    <br>
+    <br>
+        <a href="/adminViews/viewCustomers">GO BACK</a>
+    </body>
+
+    <style type="text/css">
+		table, th, td{
+			border: 1px solid black;
+		}
+	</style>
+</html>
