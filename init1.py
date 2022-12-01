@@ -470,15 +470,15 @@ def createFlight():
 #<--------------------------------------------- ADMIN ----------------------------------------------------------------------->
 
 
-@app.route('/customerViews/cancelTripScreen')
-def cancelTripScreen():
-	username = session['username']
-	return render_template('/customerViews/cancelTripScreen.html',username=username)
+# @app.route('/customerViews/cancelTripScreen')
+# def cancelTripScreen():
+# 	username = session['username']
+# 	return render_template('/customerViews/cancelTripScreen.html',username=username)
 
-@app.route('/customerViews/purchaseScreen')
-def purchaseScreen():
-	username = session['username']
-	return render_template('/customerViews/purchaseScreen.html',username=username)
+# @app.route('/customerViews/purchaseScreen')
+# def purchaseScreen():
+# 	username = session['username']
+# 	return render_template('/customerViews/purchaseScreen.html',username=username)
 
 
 #<--------------------------------------------- ADMIN ----------------------------------------------------------------------->
@@ -726,9 +726,9 @@ def post():
 @app.route('/logout', methods=['GET','POST'])
 def logout():
 	session.pop('username')
-	session.pop('admin')
-	if session['email']:
+	if not session['admin']:
 		session.pop('email')
+	session.pop('admin')
 	return render_template('goodBye.html')
 		
 app.secret_key = 'some key that you will never guess'
