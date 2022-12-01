@@ -642,6 +642,15 @@ def getCustomerFlights():
 	cursor.close()
 
 	return render_template('/adminViews/customerFlights.html', data=data)
+
+@app.route('/adminViews/viewReport', methods= ['GET', 'PORT'])
+def viewReport():
+	# get this year
+	today = datetime.now().year
+	print(today)
+	return render_template('/adminViews/reportData.html')
+
+
 #<--------------------------------------------- ADMIN ----------------------------------------------------------------------->
 
 #<--------------------------------------------- NON-USER FEATURES ----------------------------------------------------------------------->
@@ -702,6 +711,8 @@ def searchFlightStatus():
 	cursor.close()
 
 	return render_template('flightdata.html', data= data)
+
+
 
 #<--------------------------------------------- NON-USER FEATURES ----------------------------------------------------------------------->
 
