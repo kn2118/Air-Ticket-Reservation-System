@@ -2,13 +2,16 @@
     <head></head>
     <body>
     
-    <h1>Book a flight!</h1>
+    {{time}}
+    {{error}}
+    {{ticketNo}}
+    <h2>Purchase Results</h2>
     <!-- {{data[0]}}
     {{data[1]}}
     {{data[2]}} -->
 
 
-    {{day_after}}
+
 
     <table>
         <th>Flight Number</th>
@@ -42,24 +45,11 @@
     <br>
     <br>
     <br>
-    <form action="/purchaseFlight" method="POST" >
-        <p>Which airline and flight number would you like to book?</p>
+    <form action="/cancelFlight" method="POST" >
+        <p>Which airline and flight number would you like to cancel?</p>
         <input type = "input" name="airline_name" placeholder="Airline Name" required />
         <!-- <label for="flight_num">Which flight would you like to cancel?</label> -->
         <input type = "input" name="flight_num" placeholder="Flight Number" required />
-        <br><br><br>
-        <input type="input" name="card_num" placeholder="Card Number" required/>
-        <select name="card_type">
-            <option>Debit</option>
-            <option>Credit</option>
-        </select>
-        <br>
-        <label for="card_name">Card Name</label>
-        <input type="input" name="card_name" placeholder="Visa/Mastercard/etc"/>
-        <br>
-        <label for="expiration_date">Expiration Date</label>
-        <input type="date" name="expiration_date" required/><br>
-
         <button>Submit</button>
     </form>
     <br>

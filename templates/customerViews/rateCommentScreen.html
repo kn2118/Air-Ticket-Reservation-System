@@ -2,12 +2,77 @@
 <head>
 </head>
 <body>
-
+    
+    {{email}}
+    {{d}}
+    <!-- <h1>{{data}}</h1> -->
+    <h1>hehe</h1>
+    <!-- {{data[0]}}
+    {{data[1]}}
+    {{data[2]}} -->
     <!-- <form action="/post" method="POST"> -->
-    <h1>Rate and comment a trip</h1>
-    <!-- </form> -->
+        <h1>Rate and comment a trip</h1>
+        <!-- </form> -->
 
-</body>
+    <table>
+        <th>Flight Number</th>
+        <th>Airline</th>
+        <th>Departure Date & Time</th>
+        <th>Departure Airport</th>
+        <th>Arrival Airport</th>
+        <th>Arrival Date & Time</th>
+        <th>Status</th>
+        <!-- <th>Arrive</th>
+        <th>From</th>
+        <th>To</th> -->
 
+    {% for line in data%}
+		<tr>
+			<td>{{line['flight_num']}}</td>
+			<td>{{line['airline_name']}}</td>
+			<td>{{line['depart_date_time']}}</td>
+			<td>{{line['departure_airport']}}</td>
+			<td>{{line['arrival_airport']}}</td>
+			<td>{{line['arrive_date_time']}}</td>
+			<td>{{line['stat']}}</td>
+			<!-- <td>{{line['exp_date']}}</td> -->
+			<!-- <td>{{line['sold_price']}}</td> -->
+			<!-- <td>{{line['purchase_date_time']}}</td> -->
+			
+		</tr>
+	{% endfor %}
+    </table>
 
+    <br>
+    <br>
+    <br>
+    <!-- <form action="/adminView/createAirplane" method="POST" >
+        <label for="flight_num">Which flight would you like to cancel?</label>
+        <input type = "input" name="flight_num" required />
+    </form> -->
+
+    <form action="/rateComment" method="POST" >
+        <p>Which airline and flight number would you like to rate and comment for?</p>
+        <input type = "input" name="airline_name" placeholder="Airline Name" required />
+        <!-- <label for="flight_num">Which flight would you like to cancel?</label> -->
+        <input type = "input" name="flight_num" placeholder="Flight Number" required /><br><br>
+        <label for="rating">Rating: </label>
+        <input type="number" name="rating" min="1" max="5"> (Out of 5)<br><br>
+
+        <label for="comment">Comment: </label><br><br>
+        <textarea name="comment" cols="30" rows="5"></textarea><br><br>
+        <button>Submit</button>
+    </form>
+    <br>
+    <br>
+    <br>
+        <a href="/customerViews/success">GO BACK</a>
+    </body>
+
+    <style type="text/css">
+		table, th, td{
+			border: 1px solid black;
+		}
+	</style>
+    
 </html>
