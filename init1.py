@@ -148,6 +148,7 @@ def cancelFlight():
 	# query = "SELECT * FROM ticket WHERE 1"
 	# cursor.execute(query)
 	# data = type(email)
+	conn.commit()
 	cursor.close()
 
 	curr_time = datetime.now()
