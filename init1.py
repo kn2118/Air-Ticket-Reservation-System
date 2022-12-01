@@ -533,16 +533,16 @@ def loginAuth():
 		session['logged'] = True 
 
 		# get email from customer data -> use email to find ticket -> get flights that matches flight_id
-		cursor = conn.cursor()
-		query = "SELECT email FROM customer WHERE username = %s"
-		cursor.execute(query, (username))
-		tempData = cursor.fetchall()
-		email = str(tempData[0]['email'])
-		# data = str(email)
-		cursor.close()
-		session['email'] = email
 
 		if dataCustomer:
+			cursor = conn.cursor()
+			query = "SELECT email FROM customer WHERE username = %s"
+			cursor.execute(query, (username))
+			tempData = cursor.fetchall()
+			email = str(tempData[0]['email'])
+			# data = str(email)
+			cursor.close()
+			session['email'] = email
 			#creates a session for the the user
 			#session is a built in
 			session['admin'] = False
@@ -659,11 +659,13 @@ def post():
 	cursor.close()
 	return redirect(url_for('home'))
 
-@app.route('/logout')
+@app.route('/logout', methods=['GET','POST'])
 def logout():
 	session.pop('username')
 	session.pop('admin')
-	return redirect('/')
+	if session['email']:
+		session.pop('email')
+	return render_template('goodBye.html')
 		
 app.secret_key = 'some key that you will never guess'
 #Run the app on localhost port 5000
