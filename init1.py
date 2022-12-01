@@ -643,6 +643,61 @@ def getCustomerFlights():
 	cursor.close()
 
 	return render_template('/adminViews/customerFlights.html', data=data)
+
+
+@app.route('/adminViews/viewReport', methods= ['GET', 'POST'])
+def viewReport():
+	# input year
+	year = request.form['year']
+
+	# get month & ticket count for each month of the year 
+	cursor = conn.cursor()
+	query = (
+		"SELECT MONTH(purchase_date_time) as M, COUNT(ticket_id) as C "
+		"FROM ticket "
+		"WHERE YEAR(purchase_date_time) = %s "
+		"GROUP BY MONTH(purchase_date_time) "
+	)
+	cursor.execute(query, (year))
+	data = cursor.fetchall()
+	cursor.close()
+	
+	# display monthly ticket sale information
+	return render_template('/adminViews/reportData.html', data=data, year=year)
+
+@app.route('/adminViews/viewRevenue', methods=['POST','GET'])
+def viewRevenue():
+	# get current time 
+	year = datetime.now().year 
+	month = datetime.now().month
+	
+	# get total revenue for this month 
+	cursor = conn.cursor()
+	query = (
+		"SELECT SUM(sold_price) as tot_sold_price "
+		"FROM ticket "
+		"WHERE MONTH(purchase_date_time) = %s AND YEAR(purchase_date_time) = %s"
+	)
+	cursor.execute(query, (month, year))
+	monthData = cursor.fetchall()
+	cursor.close()
+
+	# get total revenue for this year
+	cursor = conn.cursor()
+	query = (
+		"SELECT SUM(sold_price) as tot_sold_price "
+		"FROM ticket " 	
+		"WHERE YEAR(purchase_date_time) = %s "
+	)
+	cursor.execute(query, (year))
+	yearData = cursor.fetchall()
+	cursor.close()
+
+	print(yearData,monthData )
+
+	return render_template('/adminViews/revenueData.html', monthData = monthData, month=month, yearData = yearData, year=year)
+
+
 #<--------------------------------------------- ADMIN ----------------------------------------------------------------------->
 
 #<--------------------------------------------- NON-USER FEATURES ----------------------------------------------------------------------->

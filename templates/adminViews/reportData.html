@@ -1,20 +1,18 @@
-<!-- <html>
+<html>
     <head></head>
     <body>
-    <h1>{{error}}</h1>
+   
     <br>
     <br>
-    <h1>Table Name</h1>
+    <h1>Monthly Ticket Sales For Year: {{year}}</h1>
     <table>
-        <th></th>
-        <th></th>
-        <th></th>
+        <th>Month</th>
+        <th>Tickets Sold</th>
 
     {% for line in data%}
 		<tr>
-			<td>{{line['key']}}</td>
-			<td>{{line['ex)']}}</td>
-			<td>{{line['airline_name']}}</td>
+			<td>{{line['M']}}</td>
+			<td>{{line['C']}}</td>
 		</tr>
 	{% endfor %}
     </table>
@@ -22,7 +20,7 @@
     <br>
     <br>
     <br>
-        <a href="">GO BACK</a>
+        <a href="/adminViews/successAdmin">GO BACK</a>
     </body>
 
     <style type="text/css">
@@ -30,4 +28,4 @@
 			border: 1px solid black;
 		}
 	</style>
-</html> -->
+</html>
