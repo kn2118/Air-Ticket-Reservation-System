@@ -1,5 +1,6 @@
 CREATE TABLE `airline` (
-  `name` varchar(255) NOT NULL
+  `name` varchar(255) NOT NULL,
+  PRIMARY KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `airline_staff` (
@@ -8,7 +9,8 @@ CREATE TABLE `airline_staff` (
   `airline_name` varchar(255) NOT NULL,
   `passwd` varchar(255) NOT NULL,
   `first_name` varchar(255) DEFAULT NULL,
-  `last_name` varchar(255) DEFAULT NULL
+  `last_name` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `airplane` (
@@ -16,18 +18,21 @@ CREATE TABLE `airplane` (
   `airline_name` varchar(255) NOT NULL,
   `manufacturer` varchar(255) DEFAULT NULL,
   `seats` int(11) DEFAULT NULL,
-  `age` int(11) DEFAULT NULL
+  `age` int(11) DEFAULT NULL,
+  PRIMARY KEY(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `airport` (
   `name` varchar(255) NOT NULL,
   `city` varchar(255) DEFAULT NULL,
   `country` varchar(255) DEFAULT NULL,
-  `type` varchar(13) DEFAULT NULL
+  `type` varchar(13) DEFAULT NULL,
+  PRIMARY KEY(`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `customer` (
   `email` varchar(255) NOT NULL,
+  `username` varchar(255) NOT NULL,
   `name` varchar(255) NOT NULL,
   `pass` varchar(127) NOT NULL,
   `building_num` int(11) DEFAULT NULL,
@@ -38,7 +43,8 @@ CREATE TABLE `customer` (
   `passport_num` int(11) DEFAULT NULL,
   `passport_exp` date DEFAULT NULL,
   `passport_country` varchar(255) DEFAULT NULL,
-  `dob` date DEFAULT NULL
+  `dob` date DEFAULT NULL,
+  PRIMARY KEY(`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `flight` (
@@ -50,7 +56,12 @@ CREATE TABLE `flight` (
   `airplane_id` int(11) DEFAULT NULL,
   `arrive_date_time` datetime DEFAULT NULL,
   `base_price` int(11) DEFAULT NULL,
-  `stat` varchar(255) DEFAULT NULL
+  `stat` varchar(255) DEFAULT NULL,
+  PRIMARY KEY(`flight_num`),
+  FOREIGN KEY(`airline_name`) REFERENCES airline(`name`),
+  FOREIGN KEY(`airplane_id`) REFERENCES airplane(`id`),
+  FOREIGN KEY(`departure_airport`) REFERENCES airport(`name`),
+  FOREIGN KEY(`arrival_airport`) REFERENCES airport(`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `review` (
@@ -59,17 +70,22 @@ CREATE TABLE `review` (
   `airline_name` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   `rating` int(5) DEFAULT NULL,
-  `review` varchar(4000) DEFAULT NULL
+  `review` varchar(4000) DEFAULT NULL,
+  FOREIGN KEY(`flight_num`) REFERENCES flight(`flight_num`),
+  FOREIGN KEY(`airline_name`) REFERENCES airline(`name`),
+  FOREIGN KEY(`email`) REFERENCES customer(`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `staff_email` (
   `email` varchar(255) NOT NULL,
-  `username` varchar(255) NOT NULL
+  `username` varchar(255) NOT NULL,
+  PRIMARY KEY(`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `staff_phone` (
   `phone_number` varchar(255) NOT NULL,
-  `username` varchar(255) NOT NULL
+  `username` varchar(255) NOT NULL,
+  FOREIGN KEY(`username`) REFERENCES staff_email(`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `ticket` (
@@ -82,12 +98,9 @@ CREATE TABLE `ticket` (
   `card_num` int(16) DEFAULT NULL,
   `exp_date` date DEFAULT NULL,
   `sold_price` int(11) DEFAULT NULL,
-  `purchase_date_time` datetime DEFAULT NULL
+  `purchase_date_time` datetime DEFAULT NULL,
+  PRIMARY KEY(`ticket_id`),
+  FOREIGN KEY(`customer_email`) REFERENCES customer(`email`),
+  FOREIGN KEY(`airline_name`) REFERENCES airline(`name`),
+  FOREIGN KEY(`flight_num`) REFERENCES flight(`flight_num`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- CREATE TABLE blog(
--- 	blog_post varchar(500),
--- 	username varchar(50),
--- 	ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
--- 	FOREIGN KEY (username) REFERENCES user(username)
--- );
