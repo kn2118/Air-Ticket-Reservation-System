@@ -2,6 +2,7 @@
 from datetime import datetime 
 from flask import Flask, render_template, request, session, url_for, redirect
 import pymysql.cursors
+import hashlib
 from datetime import datetime, timedelta
 import hashlib
 
@@ -37,16 +38,6 @@ def checkFlight():
 	time = str(request.form.get('viewOption'))
 
 	all = (time == "All flights")
-
-
-	# get email from customer data -> use email to find ticket -> get flights that matches flight_id
-	# cursor = conn.cursor()
-	# query = "SELECT email FROM customer WHERE username = %s"
-	# cursor.execute(query, (username))
-	# tempData = cursor.fetchall()
-	# email = str(tempData[0]['email'])
-	# # data = str(email)
-	# cursor.close()
 	email = session['email']
 
 	cursor = conn.cursor()
@@ -66,15 +57,6 @@ def checkFlight():
 @app.route('/purchaseView', methods = ['GET', 'POST'])
 def purchaseView(): 
 	username = session['username']
-
-		# get email from customer data -> use email to find ticket -> get flights that matches flight_id
-	# cursor = conn.cursor()
-	# query = "SELECT email FROM customer WHERE username = %s"
-	# cursor.execute(query, (username))
-	# tempData = cursor.fetchall()
-	# email = str(tempData[0]['email'])
-	# # data = str(email)
-	# cursor.close()
 	email = session['email']
 
 	curr_time = datetime.now()
@@ -100,15 +82,6 @@ def cancelView():
 	username = session['username']
 	time = str(request.form.get('viewOption'))
 
-	# get email from customer data -> use email to find ticket -> get flights that matches flight_id
-	# cursor = conn.cursor()
-	# query = "SELECT email FROM customer WHERE username = %s"
-	# cursor.execute(query, (username))
-	# tempData = cursor.fetchall()
-	# email = str(tempData[0]['email'])
-	# # data = str(email)
-	# cursor.close()
-
 	email = session['email']
 
 	cursor = conn.cursor()
@@ -128,15 +101,6 @@ def cancelFlight():
 	airline_name = request.form['airline_name']
 	flight_num = request.form['flight_num']
 	time = "hehe"
-
-	# cursor = conn.cursor()
-	# query = "SELECT email FROM customer WHERE username = %s"
-	# cursor.execute(query, (username))
-	# tempData = cursor.fetchall()
-	# email = str(tempData[0]['email'])
-	# # data = str(email)
-	# cursor.close()
-
 	email = session['email']
 
 	# result_2 = current_date + timedelta(days=7)
@@ -177,13 +141,6 @@ def purchaseFlight():
 
 	time = expiration_date
 
-	# cursor = conn.cursor()
-	# query = "SELECT email FROM customer WHERE username = %s"
-	# cursor.execute(query, (username))
-	# tempData = cursor.fetchall()
-	# email = str(tempData[0]['email'])
-	# # data = str(email)
-	# cursor.close()
 	email = session['email']
 	purchase_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 	cursor = conn.cursor()
@@ -201,8 +158,31 @@ def purchaseFlight():
 	cursor.close()
 
 	cursor = conn.cursor()
-	# query = "INSERT INTO airplane(id, airline_name, manufacturer, seats, age) VALUES(%s, %s, %s, %s, %s)"
+	query = "SELECT seats FROM airplane WHERE id = (SELECT airplane_id FROM flight WHERE (airline_name, flight_num) = (%s, %s))"
+	cursor.execute(query, (airline_name,flight_num))
+	seats = float(cursor.fetchall()[0]['seats'])
+	cursor.close()
 
+	cursor = conn.cursor()
+	query = "SELECT COUNT(ticket_id) FROM ticket WHERE flight_num = %s"
+	cursor.execute(query, (flight_num))
+	booked = cursor.fetchall()[0]['COUNT(ticket_id)']
+	cursor.close()
+
+	# query = "INSERT INTO airplane(id, airline_name, manufacturer, seats, age) VALUES(%s, %s, %s, %s, %s)"
+	cursor = conn.cursor()
+	query = "SELECT base_price FROM flight WHERE (airline_name, flight_num) = (%s,%s)"
+	cursor.execute(query, (airline_name,flight_num))
+	basePrice = cursor.fetchall()[0]['base_price']
+	cursor.close()
+
+
+	if (booked >= 0.6 * seats):
+		price = basePrice * 1.25
+	else:
+		price = basePrice
+
+	cursor = conn.cursor()
 	insertStatement = "INSERT INTO ticket(ticket_id, customer_email, airline_name, flight_num, card_type,card_name,card_num,exp_date,sold_price,purchase_date_time) VALUES(%s, %s, %s, %s, %s,%s, %s, %s, %s, %s)"
 	# cursor.execute(insertStatement, (ticketNo,email,airline_name,flight_num,card_type,card_name,card_num,expiration_date,100,purchase_time))
 	# query = "SELECT * FROM ticket WHERE 1"
@@ -213,33 +193,28 @@ def purchaseFlight():
 		cursor.execute(insertStatement, (ticketNo,email,airline_name,flight_num,card_type,card_name,card_num,expiration_date,100,purchase_time))
 		conn.commit() 
 		error = "BOUGHT TICKET SUCCESS!"
-	except:
-		error = "FAILED TO BUY TICKET AIRPLANE, Double Check ID/Airline_Name Fields"
-	finally:
 		cursor.close()
 
-	# cursor = conn.cursor()
-	# query = "SELECT * FROM flight WHERE ((flight_num,airline_name) IN (SELECT flight_num, airline_name FROM ticket WHERE customer_email = %s)) AND depart_date_time > NOW()"
-	# cursor.execute(query,email)
+		cursor = conn.cursor()
+		query = "SELECT * FROM flight WHERE ((flight_num,airline_name) IN (SELECT flight_num, airline_name FROM ticket WHERE customer_email = %s)) AND depart_date_time > NOW()"
+		cursor.execute(query,session['email'])	
+		data = cursor.fetchall()	
+		cursor.close()
 
-	# data = cursor.fetchall()
-	# cursor.close()
-	data = "hey"
-	return render_template('/customerViews/purchaseComplete.html', error=error,data=data,email = email, ticketNo = ticketNo, time = time)
+	except:
+		error = "FAILED TO BUY TICKET AIRPLANE, Double Check ID/Airline_Name Fields"
+		cursor.close()
+		data = []
+	# finally:
+	# 	cursor.close()
+
+
+	return render_template('/customerViews/purchaseComplete.html', basePrice = basePrice, seats = seats, booked=booked, error=error,email = email, ticketNo = ticketNo, time = time, data=data)
 
 @app.route('/rateCommentPage', methods = ['GET', 'POST'])
 def rateCommentPage(): 
 
 	username = session['username']
-
-	# get email from customer data -> use email to find ticket -> get flights that matches flight_id
-	# cursor = conn.cursor()
-	# query = "SELECT email FROM customer WHERE username = %s"
-	# cursor.execute(query, (username))
-	# tempData = cursor.fetchall()
-	# email = str(tempData[0]['email'])
-	# # data = str(email)
-	# cursor.close()
 
 	email = session['email']
 
@@ -305,18 +280,7 @@ def trackSpending():
 	tempData = cursor.fetchall()
 	totalSpent = tempData[0]['SUM(sold_price)']
 
-	# ticketNo = purchase_time
-	# data = str(email)
 	cursor.close()
-
-	# cursor = conn.cursor()
-
-	# checkExistsquery = "SELECT * FROM flight WHERE ((flight_num,airline_name) IN (SELECT flight_num, airline_name FROM ticket WHERE customer_email = %s)) AND depart_date_time < NOW()"
-
-	# cursor.execute(checkExistsquery, (email))
-	# data = cursor.fetchall()
-	# # data = type(email)
-	# cursor.close()
 
 	return render_template('/customerViews/messagePage.html', error=totalSpent)
 
@@ -703,6 +667,15 @@ def viewRevenue():
 
 #<--------------------------------------------- NON-USER FEATURES ----------------------------------------------------------------------->
 
+def hash_helper(password):
+	result = hashlib.md5()
+	result.update(password.encode())
+	return result.hexdigest()
+
+def checkEmail(email):
+	regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+	return re.fullmatch(regex, email)
+
 @app.route('/searchFlight', methods=['GET', 'POST'])
 def searchFlight():
 	# necessary flight information 
@@ -805,7 +778,6 @@ def loginAuth():
 	cursor.close()
 
 	cursor = conn.cursor()
-
 	queryCustomer = 'SELECT * FROM customer WHERE username = %s and pass = %s'
 	cursor.execute(queryCustomer, (username, password))
 
