@@ -4,7 +4,7 @@ from flask import Flask, render_template, request, session, url_for, redirect
 import pymysql.cursors
 import hashlib
 from datetime import datetime, timedelta
-import re
+import hashlib
 
 #Initialize the app from Flask
 app = Flask(__name__)
@@ -757,6 +757,14 @@ def loginAuth():
 	username = request.form['username']
 	password = request.form['password']
 
+	# adding 5gz as password
+	salt = "5gz"
+	
+	# Adding salt at the last of the password
+	dataBase_password = password+salt
+	# Encoding the password
+	password = hashlib.md5(dataBase_password.encode())
+
 	#cursor used to send queries
 	cursor = conn.cursor()
 	#executes query
@@ -816,6 +824,14 @@ def registerAuth():
 	username = request.form['username']
 	password = request.form['password']
 
+	# adding 5gz as password
+	salt = "5gz"
+	
+	# Adding salt at the last of the password
+	dataBase_password = password+salt
+	# Encoding the password
+	password = hashlib.md5(dataBase_password.encode())
+
 	#cursor used to send queries
 	cursor = conn.cursor()
 	#executes query
@@ -828,7 +844,7 @@ def registerAuth():
 	if(data):
 		#If the previous query returns data, then user exists
 		error = "This user already exists"
-		return render_template('adminRegister.html', error = error)
+		return render_template('/adminViews/adminRegister.html', error = error)
 	else:
 		dob = request.form['dob']
 		airline_name = request.form['airline_name']
@@ -851,6 +867,14 @@ def registerCustomerAuth():
 	username = request.form['username']
 	password = request.form['password']
 	# curr_path = request.url_rule
+
+	# adding 5gz as password
+	salt = "5gz"
+	
+	# Adding salt at the last of the password
+	dataBase_password = password+salt
+	# Encoding the password
+	password = hashlib.md5(dataBase_password.encode())
 
 	#cursor used to send queries
 	cursor = conn.cursor()
