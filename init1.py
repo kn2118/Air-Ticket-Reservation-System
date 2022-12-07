@@ -790,7 +790,7 @@ def loginAuth():
 	# Adding salt at the last of the password
 	dataBase_password = password+salt
 	# Encoding the password
-	password = hashlib.md5(dataBase_password.encode())
+	password = hashlib.md5(dataBase_password.encode()).hexdigest()
 
 	#cursor used to send queries
 	cursor = conn.cursor()
@@ -858,7 +858,8 @@ def registerAuth():
 	# Adding salt at the last of the password
 	dataBase_password = password+salt
 	# Encoding the password
-	password = hashlib.md5(dataBase_password.encode())
+	password = hashlib.md5(dataBase_password.encode()).hexdigest()
+	print(password)
 
 	#cursor used to send queries
 	cursor = conn.cursor()
@@ -902,7 +903,7 @@ def registerCustomerAuth():
 	# Adding salt at the last of the password
 	dataBase_password = password+salt
 	# Encoding the password
-	password = hashlib.md5(dataBase_password.encode())
+	password = hashlib.md5(dataBase_password.encode()).hexdigest()
 
 	#cursor used to send queries
 	cursor = conn.cursor()
