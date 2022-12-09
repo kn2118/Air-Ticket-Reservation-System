@@ -897,7 +897,6 @@ def registerCustomerAuth():
 		dob = request.form['dob']
 		email = request.form['email']
 		name = request.form['name']
-		password = request.form['password']
 		passport_country = request.form['passport_country']
 		passport_exp = request.form['passport_expiration']
 		passport_num = request.form['passport_number']
@@ -910,7 +909,7 @@ def registerCustomerAuth():
 		cursor.execute(ins, (building_num,city,dob, email, name, password, passport_country, passport_exp, passport_num, phone, state, street, username))
 		conn.commit()
 		cursor.close()
-		return render_template('index.html',erorr=error)
+		return render_template('index.html',error=error)
 
 @app.route('/logout', methods=['GET','POST'])
 def logout():
