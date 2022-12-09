@@ -2,12 +2,6 @@
     <head></head>
     <body>
     
-    {{time}}
-    {{error}}
-    {{ticketNo}}
-    {{basePrice}}
-    {{seats}}
-    {{booked}}
     <h2>Purchase Results</h2>
 
 
@@ -40,16 +34,6 @@
 	{% endfor %}
     </table>
 
-    <br>
-    <br>
-    <br>
-    <form action="/cancelFlight" method="POST" >
-        <p>Which airline and flight number would you like to cancel?</p>
-        <input type = "input" name="airline_name" placeholder="Airline Name" required />
-        <!-- <label for="flight_num">Which flight would you like to cancel?</label> -->
-        <input type = "input" name="flight_num" placeholder="Flight Number" required />
-        <button>Submit</button>
-    </form>
     <br>
     <br>
     <br>

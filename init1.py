@@ -190,7 +190,7 @@ def purchaseFlight():
 	# data = type(email)
 	error = None
 	try:
-		cursor.execute(insertStatement, (ticketNo,email,airline_name,flight_num,card_type,card_name,card_num,expiration_date,100,purchase_time))
+		cursor.execute(insertStatement, (ticketNo,email,airline_name,flight_num,card_type,card_name,card_num,expiration_date,price,purchase_time))
 		conn.commit() 
 		error = "BOUGHT TICKET SUCCESS!"
 		cursor.close()
