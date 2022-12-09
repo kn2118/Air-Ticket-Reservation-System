@@ -86,9 +86,13 @@ def cancelView():
 
 	cursor = conn.cursor()
 
-	query = "SELECT * FROM flight WHERE ((flight_num,airline_name) IN (SELECT flight_num, airline_name FROM ticket WHERE customer_email = %s)) AND depart_date_time > NOW()"
+	curr_time = datetime.now()
+	day_after = curr_time + timedelta(days=1)
+	day_after = day_after.strftime("%Y-%m-%d %H:%M:%S")
 
-	cursor.execute(query, (email))
+	query = "SELECT * FROM flight WHERE ((flight_num,airline_name) IN (SELECT flight_num, airline_name FROM ticket WHERE customer_email = %s)) AND depart_date_time > TIME(%s)"
+
+	cursor.execute(query, (email,day_after))
 	data = cursor.fetchall()
 	# data = type(email)
 	cursor.close()
@@ -189,22 +193,25 @@ def purchaseFlight():
 	# cursor.execute(query)
 	# data = type(email)
 	error = None
-	try:
-		cursor.execute(insertStatement, (ticketNo,email,airline_name,flight_num,card_type,card_name,card_num,expiration_date,price,purchase_time))
-		conn.commit() 
-		error = "BOUGHT TICKET SUCCESS!"
-		cursor.close()
+	if booked == seats:
+		error = "Unable to book seats, maximum capacity reached"
+	else:
+		try:
+			cursor.execute(insertStatement, (ticketNo,email,airline_name,flight_num,card_type,card_name,card_num,expiration_date,price,purchase_time))
+			conn.commit() 
+			error = "BOUGHT TICKET SUCCESS!"
+			cursor.close()
 
-		cursor = conn.cursor()
-		query = "SELECT * FROM flight WHERE ((flight_num,airline_name) IN (SELECT flight_num, airline_name FROM ticket WHERE customer_email = %s)) AND depart_date_time > NOW()"
-		cursor.execute(query,session['email'])	
-		data = cursor.fetchall()	
-		cursor.close()
+			cursor = conn.cursor()
+			query = "SELECT * FROM flight WHERE ((flight_num,airline_name) IN (SELECT flight_num, airline_name FROM ticket WHERE customer_email = %s)) AND depart_date_time > NOW()"
+			cursor.execute(query,session['email'])	
+			data = cursor.fetchall()	
+			cursor.close()
 
-	except:
-		error = "FAILED TO BUY TICKET AIRPLANE, Double Check ID/Airline_Name Fields"
-		cursor.close()
-		data = []
+		except:
+			error = "FAILED TO BUY TICKET AIRPLANE, Double Check ID/Airline_Name Fields"
+			cursor.close()
+			data = []
 	# finally:
 	# 	cursor.close()
 
@@ -249,7 +256,6 @@ def rateComment():
 	query = "INSERT INTO review(flight_num, depart_date_time, airline_name, email, rating, review) VALUES(%s, %s, %s, %s, %s, %s)"
 	error = None
 
-	data = "hehe"
 	try:
 		cursor.execute(query, (flight_num, depart_date_time, airline_name, email, rating, comment))
 		conn.commit() 
@@ -880,7 +886,7 @@ def registerCustomerAuth():
 	#cursor used to send queries
 	cursor = conn.cursor()
 	#executes query
-	query = 'SELECT * FROM airline_staff WHERE username = %s'
+	query = 'SELECT * FROM customer WHERE username = %s'
 	cursor.execute(query, (username))
 	#stores the results in a variable
 	data = cursor.fetchone()
