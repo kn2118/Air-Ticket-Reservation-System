@@ -1,0 +1,4 @@
+input[type=datetime-local] {
+    height: 1rem; 
+    line-height: 33px; 
+}
